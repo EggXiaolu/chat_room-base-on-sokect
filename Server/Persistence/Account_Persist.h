@@ -1,9 +1,3 @@
-/*************************************************************************
-  >    File Name: Account_Persist.h
-  >       Author: fujie
-  >         Mail: fujie.me@qq.com
-  > Created Time: 2017年08月08日 星期二 15时42分24秒
- ************************************************************************/
 
 #ifndef _ACCOUNT_PERSIST_H
 #define _ACCOUNT_PERSIST_H
@@ -34,6 +28,7 @@ int Account_Perst_AddUser(const char *name, int sex, const char *password);
  */
 int Account_Perst_MatchUserAndPassword(int uid, const char *password);
 
+// 根据uid查询用户名
 char *Account_Perst_GetUserNameFromUid(int uid);
 
 #endif

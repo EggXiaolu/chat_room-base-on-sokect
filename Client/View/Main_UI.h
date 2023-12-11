@@ -1,14 +1,10 @@
-/*************************************************************************
-	>    File Name: Main_UI.h
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月11日 星期五 09时16分47秒
- ************************************************************************/
 
 #ifndef _MAIN_UI_H
 #define _MAIN_UI_H
 
-void Main_UI_Hello(int gl_uid);
+// 用户登陆前页面
+void Main_UI_Hello();
 
-void Main_UI_Menu(int gl_uid);
+// 用户登陆后页面
+void Main_UI_Menu();
 #endif

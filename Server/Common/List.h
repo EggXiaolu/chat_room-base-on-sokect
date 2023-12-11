@@ -1,16 +1,4 @@
 
-/*
- * 稍作修改用于单向链表
- * by fujie
- */
-
-/*
- * list.h
- *
- *  Created on: 2015年4月22日
- *      Author: Administrator
- */
-
 #ifndef LIST_H_
 #define LIST_H_
 

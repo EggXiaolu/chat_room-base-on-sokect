@@ -1,9 +1,3 @@
-/*************************************************************************
-	>    File Name: Chat_Persist.h
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月16日 星期三 09时52分31秒
- ************************************************************************/
 
 #ifndef _CHAT_PERSIST_H
 #define _CHAT_PERSIST_H

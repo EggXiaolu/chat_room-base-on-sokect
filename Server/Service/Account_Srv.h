@@ -1,9 +1,3 @@
-/*************************************************************************
-	>    File Name: Account_Ser.h
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月09日 星期三 09时34分40秒
- ************************************************************************/
 
 #ifndef _ACCOUNT_SER_H
 #define _ACCOUNT_SER_H
@@ -34,8 +28,10 @@ int Account_Srv_SendIsOnline(int uid, int is_online);
 // 注销登录
 int Account_Srv_Out(int sock_fd, char *JSON);
 
+// 用户注册
 int Account_Srv_SignIn(int sock_fd, char *JSON);
 
+// 用户登陆
 int Account_Srv_Login(int sock_fd, char *JSON);
 
 #endif

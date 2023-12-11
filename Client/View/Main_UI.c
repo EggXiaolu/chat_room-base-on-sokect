@@ -1,9 +1,3 @@
-/*************************************************************************
-    >    File Name: Main_UI.c
-    >       Author: fujie
-    >         Mail: fujie.me@qq.com
-    > Created Time: 2017年08月11日 星期五 09时18分18秒
- ************************************************************************/
 
 #include <stdio.h>
 #include "./Main_UI.h"
@@ -15,15 +9,15 @@
 #include "../Service/Friends_Srv.h"
 #include "../Service/Chat_Srv.h"
 #include "../Service/Group_Srv.h"
-// int gl_uid;
-void Main_UI_Hello(int gl_uid)
+extern int gl_uid;
+void Main_UI_Hello()
 {
     int choice;
     do
     {
         if (gl_uid > 0)
         {
-            Main_UI_Menu(gl_uid);
+            Main_UI_Menu();
         }
         system("clear");
         printf(
@@ -56,7 +50,7 @@ void Main_UI_Hello(int gl_uid)
     } while (1);
 }
 
-void Main_UI_Menu(int gl_uid)
+void Main_UI_Menu()
 {
     Chat_Srv_InitList();
     Friends_Srv_GetList();

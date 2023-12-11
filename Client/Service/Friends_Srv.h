@@ -1,9 +1,3 @@
-/*************************************************************************
-	>    File Name: Friends_Srv.h
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月12日 星期六 09时46分33秒
- ************************************************************************/
 
 #ifndef _FRIENDS_SRV_H
 #define _FRIENDS_SRV_H

@@ -1,9 +1,3 @@
-/*************************************************************************
-	>    File Name: Persistence/Group_Persist.h
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月18日 星期五 01时27分05秒
- ************************************************************************/
 
 #ifndef _GROUP_PERSIST_H
 #define _GROUP_PERSIST_H

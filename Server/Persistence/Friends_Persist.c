@@ -1,9 +1,3 @@
-/*************************************************************************
-	>    File Name: Friends_Persist.c
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月14日 星期一 08时20分37秒
- ************************************************************************/
 
 #include<stdio.h>
 #include"Friends_Persist.h"

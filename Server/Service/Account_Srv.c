@@ -1,9 +1,3 @@
-/*************************************************************************
-    >    File Name: Account_Srv.c
-    >       Author: fujie
-    >         Mail: fujie.me@qq.com
-    > Created Time: 2017年08月10日 星期四 11时13分44秒
- ************************************************************************/
 
 #include <stdio.h>
 #include <string.h>
@@ -138,17 +132,18 @@ int Account_Srv_SignIn(int sock_fd, char *JSON)
     char name[30], password[30];
     int sex;
     cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "name");
+    cJSON *item = cJSON_GetObjectItem(root, "name"); // 获取用户输入的昵称
     strcpy(name, item->valuestring);
-    item = cJSON_GetObjectItem(root, "sex");
+    item = cJSON_GetObjectItem(root, "sex"); // 获取用户输入的性别
     sex = item->valueint;
-    item = cJSON_GetObjectItem(root, "password");
+    item = cJSON_GetObjectItem(root, "password"); // 输入用户输入的密码
     strcpy(password, item->valuestring);
     cJSON_Delete(root);
     root = cJSON_CreateObject();
     item = cJSON_CreateString("R");
     cJSON_AddItemToObject(root, "type", item);
-    if (Account_Perst_IsUserName(name))
+
+    if (Account_Perst_IsUserName(name)) // 检查是否重复
     {
         item = cJSON_CreateBool(0);
         cJSON_AddItemToObject(root, "res", item);
