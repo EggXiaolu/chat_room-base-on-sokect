@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "connect.h": "c",
+        "common.h": "c",
+        "cdecode.h": "c",
+        "ostream": "cpp",
+        "iostream": "cpp"
+    },
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "127.17.0.2",
+            "port": 3305,
+            "driver": "MySQL",
+            "name": "chat_room",
+            "database": "chat_room",
+            "username": "root",
+            "password": "123456"
+        }
+    ]
+}

@@ -30,7 +30,8 @@ char *sgets(char *str,int len);
 void ffflush();
 
 //比较日期dt1, dt2的大小。相等返回0，dt1<dt2返回-1，否则1
-int DateCmp(user_date_t dt1, user_date_t dt2);
+int DateC\
+mp(user_date_t dt1, user_date_t dt2);
 
 //获取系统当前日期
 user_date_t DateNow();

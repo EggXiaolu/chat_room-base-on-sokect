@@ -12,12 +12,12 @@
  * 存储在线用户的uid以及对应的socket描述符
  * 带头结点的单链表结构
  */
- typedef struct online{
-     int uid;
-     int sock_fd;
-     struct online *next;
- } online_t;
-
+typedef struct online
+{
+	int uid;
+	int sock_fd;
+	struct online *next;
+} online_t;
 
 /*
  * 改变用户登录状态
@@ -26,16 +26,16 @@
  * 上线成功返回1 失败返回0
  * 下线成功返回uid  失败返回0
  */
-int Account_Srv_ChIsOnline(int uid ,int is_online ,int sock_fd);
+int Account_Srv_ChIsOnline(int uid, int is_online, int sock_fd);
 
-//向某个好友发送上下线提示
+// 向某个好友发送上下线提示
 int Account_Srv_SendIsOnline(int uid, int is_online);
 
-//注销登录
-int Account_Srv_Out(int sock_fd , char *JSON);
+// 注销登录
+int Account_Srv_Out(int sock_fd, char *JSON);
 
-int Account_Srv_SignIn(int sock_fd , char * JSON);
+int Account_Srv_SignIn(int sock_fd, char *JSON);
 
-int Account_Srv_Login(int sock_fd ,char * JSON);
+int Account_Srv_Login(int sock_fd, char *JSON);
 
 #endif

@@ -9,10 +9,7 @@ git clone https://github.com/fujie-xiyou/chat_room.git
 cd chat_room/Server
 make
 ```
-然后将`chat_room.sql`导入到你的数据库中，并修改`config.json`中的数据库信息<br>
-最后`./chat_room_srv`
-没有报错的话服务器就启动成功了
- - 客户端
+然后将`chat_room.sql`导入到你的数据库中，并修改
 
 ``` shell?linenums
 cd chat_room/Client

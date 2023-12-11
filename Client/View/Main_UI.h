@@ -8,7 +8,7 @@
 #ifndef _MAIN_UI_H
 #define _MAIN_UI_H
 
-void Main_UI_Hello();
+void Main_UI_Hello(int gl_uid);
 
-void Main_UI_Menu();
+void Main_UI_Menu(int gl_uid);
 #endif

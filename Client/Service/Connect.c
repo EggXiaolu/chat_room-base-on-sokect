@@ -1,8 +1,8 @@
 /*************************************************************************
-	>    File Name: Connect.c
-	>       Author: fujie
-	>         Mail: fujie.me@qq.com
-	> Created Time: 2017年08月10日 星期四 17时42分08秒
+    >    File Name: Connect.c
+    >       Author: fujie
+    >         Mail: fujie.me@qq.com
+    > Created Time: 2017年08月10日 星期四 17时42分08秒
  ************************************************************************/
 
 #include <stdio.h>
@@ -19,16 +19,19 @@
 #define MSG_LEN 1024
 
 int sock_fd;
-//pthread_mutex_t mutex;
-//pthread_cond_t cond;
+// pthread_mutex_t mutex;
+// pthread_cond_t cond;
 extern int my_mutex;
 char massage[MSG_LEN];
 
-void * thread(void *arg){
-    int ret ,recv_len;
-    cJSON *root ,*item;
-    if(arg == NULL) arg = NULL;//为了消除警告
-    while(1){
+void *thread(void *arg)
+{
+    int ret, recv_len;
+    cJSON *root, *item;
+    if (arg == NULL)
+        arg = NULL; // 为了消除警告
+    while (1)
+    {
         /*
         printf("线程上锁之前\n");
         pthread_mutex_lock(&mutex);
@@ -36,76 +39,80 @@ void * thread(void *arg){
         pthread_cond_wait(&cond ,&mutex);
         printf("线程条件变量为真\n");
         */
-        if(my_mutex) continue;
-        //printf("等待接收\n");
+        if (my_mutex)
+            continue;
+        // printf("等待接收\n");
         recv_len = 0;
-        while(recv_len < MSG_LEN){
+        while (recv_len < MSG_LEN)
+        {
             ret = 0;
-            if((ret = recv(sock_fd ,massage + recv_len ,MSG_LEN - recv_len,0)) <= 0){
+            if ((ret = recv(sock_fd, massage + recv_len, MSG_LEN - recv_len, 0)) <= 0)
+            {
                 perror("recv: 服务器失去响应");
                 exit(0);
             }
             recv_len += ret;
         }
-        //printf("收到:%s\n",massage);
+        // printf("收到:%s\n",massage);
         root = cJSON_Parse(massage);
-        item = cJSON_GetObjectItem(root ,"type");
-        switch(item -> valuestring[0]){
-            case 'A' :
-                Friends_Srv_RecvAdd(massage);
-                //处理好友请求
-                break;
-            case 'a':
-                //处理好友请求反馈
-                Friends_Srv_ApplyRes(massage);
-                break;
-            case 'P' :
-                //处理私聊消息
-                Chat_Srv_RecvPrivate(massage);
-                break;
-            case 'p':
-                //处理群聊消息
-                Chat_Srv_RecvGroup(massage);
-                break;
-            case 'F' :
-                Chat_Srv_RecvFile(massage);
-                //处理文件请求
-                break;
-            case 'Q' :
-                //群聊
-                break;
-            case 'R' :
-                //说明此条消息是主线程请求的结果反馈
-                //因此不做处理,等待主线程处理
-                my_mutex = 1;
-                break;
-            case 'L' :
-                my_mutex = 1;
-                //获取好友列表
-                //主线程处理
-                break;
-            case 'l' :
-                my_mutex = 1;
-                //获取群列表
-                //主线程处理
-                break;
-            case 'I' :
-                //好友上下线请求
-                Account_Srv_RecvIsOnline(massage);
-                break;
-            case 'J' :
-                //被邀请加入群聊或创建群聊时接收群信息
-                Group_Srv_Join(massage);
-                break;
-            case 'm' :
-                Group_Srv_ShowMember(massage);
-                break;
-            case 'D' :
-                Group_Srv_Delete(massage);
-                break;
-            case 'E' :
-                Chat_Srv_ShowPrivateRec(massage);
-                break;
+        item = cJSON_GetObjectItem(root, "type");
+        switch (item->valuestring[0])
+        {
+        case 'A':
+            Friends_Srv_RecvAdd(massage);
+            // 处理好友请求
+            break;
+        case 'a':
+            // 处理好友请求反馈
+            Friends_Srv_ApplyRes(massage);
+            break;
+        case 'P':
+            // 处理私聊消息
+            Chat_Srv_RecvPrivate(massage);
+            break;
+        case 'p':
+            // 处理群聊消息
+            Chat_Srv_RecvGroup(massage);
+            break;
+        case 'F':
+            Chat_Srv_RecvFile(massage);
+            // 处理文件请求
+            break;
+        case 'Q':
+            // 群聊
+            break;
+        case 'R':
+            // 说明此条消息是主线程请求的结果反馈
+            // 因此不做处理,等待主线程处理
+            my_mutex = 1;
+            break;
+        case 'L':
+            my_mutex = 1;
+            // 获取好友列表
+            // 主线程处理
+            break;
+        case 'l':
+            my_mutex = 1;
+            // 获取群列表
+            // 主线程处理
+            break;
+        case 'I':
+            // 好友上下线请求
+            Account_Srv_RecvIsOnline(massage);
+            break;
+        case 'J':
+            // 被邀请加入群聊或创建群聊时接收群信息
+            Group_Srv_Join(massage);
+            break;
+        case 'm':
+            Group_Srv_ShowMember(massage);
+            break;
+        case 'D':
+            Group_Srv_Delete(massage);
+            break;
+        case 'E':
+            Chat_Srv_ShowPrivateRec(massage);
+            break;
         }
         /*
         printf("线程解锁之前\n");
@@ -117,26 +124,30 @@ void * thread(void *arg){
     }
     return NULL;
 }
-void Connect(const char *host ,int port){
+void Connect(const char *host, int port)
+{
     struct sockaddr_in clie_addr;
-    //char *out;
+    // char *out;
     pthread_t thid;
- //   pthread_mutex_init(&mutex ,NULL);
-   // pthread_cond_init(&cond ,NULL);
-    memset(&clie_addr , 0 ,sizeof(struct sockaddr_in));
+    // pthread_mutex_init(&mutex ,NULL);
+    // pthread_cond_init(&cond ,NULL);
+    memset(&clie_addr, 0, sizeof(struct sockaddr_in));
     clie_addr.sin_family = AF_INET;
     clie_addr.sin_port = htons(port);
     clie_addr.sin_addr.s_addr = inet_addr(host);
-    sock_fd = socket(AF_INET , SOCK_STREAM , 0);
-    if(sock_fd < 0){
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    
+    if (sock_fd < 0)
+    {
         perror("socket");
         exit(0);
     }
-    if(connect(sock_fd , (struct sockaddr *)&clie_addr,sizeof(struct sockaddr_in)) < 0){
+    if (connect(sock_fd, (struct sockaddr *)&clie_addr, sizeof(struct sockaddr_in)) < 0)
+    {
         perror("connect");
         exit(0);
     }
-    pthread_create(&thid ,NULL ,thread ,NULL);
-    //usleep(5000);
-    //pthread_cond_signal(&cond);
+    pthread_create(&thid, NULL, thread, NULL);
+    // usleep(5000);
+    // pthread_cond_signal(&cond);
 }

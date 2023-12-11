@@ -14,11 +14,9 @@
 #include <arpa/inet.h>
 #include "../Common/Common.h"
 
-
 /*
  * 创建并保持socket连接
  */
-void Connect(const char *host ,int port);
-
+void Connect(const char *host, int port);
 
 #endif
