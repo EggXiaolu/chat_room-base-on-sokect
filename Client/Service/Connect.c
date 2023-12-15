@@ -99,6 +99,7 @@ void *thread(void *arg)
             Group_Srv_Join(massage);
             break;
         case 'm':
+            // 打印群成员
             Group_Srv_ShowMember(massage);
             break;
         case 'd':

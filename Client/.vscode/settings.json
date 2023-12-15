@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "group_srv.h": "c",
+        "friends_srv.h": "c"
+    }
+}

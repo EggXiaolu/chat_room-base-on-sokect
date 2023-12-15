@@ -101,10 +101,15 @@ void *thread(void *arg)
             Group_Srv_AddMember(client_fd, buf);
             break;
         case 'm':
+            // 获取群成员
             Group_Srv_ShowMember(client_fd, buf);
             break;
+        case 'd':
+            // 踢人
+            Group_Srv_RemoveMember(client_fd, buf);
+            break;
         case 'Q':
-            // 踢人 退群 解散群
+            // 退群 解散群
             Group_Srv_Quit(client_fd, buf);
             break;
         case 'E':

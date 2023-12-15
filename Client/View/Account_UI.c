@@ -5,6 +5,10 @@
 #include "../Service/Account_Srv.h"
 int Account_UI_SignIn()
 {
+    printf(
+        "==============================\n"
+        "*************注册*************\n"
+        "==============================\n");
     char name[30], password[30];
     int sex;
     printf("请输入要注册的用户名:");
@@ -27,7 +31,7 @@ int Account_UI_SignIn()
         }
         else
         {
-            printf("目前不存在的性别...\n");
+            printf("请输入正确的性别！！！\n");
         }
     }
     printf("请输入密码:");
@@ -38,6 +42,10 @@ int Account_UI_SignIn()
 
 int Account_UI_Login()
 {
+    printf(
+        "==============================\n"
+        "*************登陆*************\n"
+        "==============================\n");
     char name[30], password[30];
     printf("请输入用户名:");
     scanf("%s", name);
@@ -46,4 +54,9 @@ int Account_UI_Login()
     scanf("%s", password);
     ffflush();
     return Account_Srv_Login(name, password);
+}
+
+void Account_UI_Exit()
+{
+    printf("欢迎再次使用～\n");
 }

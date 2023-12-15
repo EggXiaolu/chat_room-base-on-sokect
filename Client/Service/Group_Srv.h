@@ -34,7 +34,7 @@ void Group_Srv_GetMember(int gid);
 void Group_Srv_Quit(group_t *curGroup);
 
 // 删除群成员
-void Group_Srv_DelMembebr(group_t *curGroup);
+void Group_Srv_RemoveMember(group_t *curGroup, char *name);
 
 void Group_Srv_Delete(const char *massage);
 #endif

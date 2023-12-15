@@ -33,6 +33,8 @@ void Group_Srv_SendInfo(int gid, int uid);
 
 void Group_Srv_ShowMember(int client_fd, const char *JSON);
 
+void Group_Srv_RemoveMember(int client_fd, const char *JSON);
+
 void Group_Srv_Quit(int client_fd, const char *JSON);
 
 #endif

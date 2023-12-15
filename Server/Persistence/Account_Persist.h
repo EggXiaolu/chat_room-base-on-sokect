@@ -31,4 +31,6 @@ int Account_Perst_MatchUserAndPassword(int uid, const char *password);
 // 根据uid查询用户名
 char *Account_Perst_GetUserNameFromUid(int uid);
 
+// 根据用户名查询uid
+int Account_Perst_GetUserUidFromName(char *name);
 #endif

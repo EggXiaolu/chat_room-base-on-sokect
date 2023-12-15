@@ -8,6 +8,7 @@
 #include "../Common/List.h"
 #include "../Common/cJSON.h"
 #include "../Persistence/Group_Persist.h"
+#include "../Persistence/Account_Persist.h"
 #define MSG_LEN 1024
 int Group_Srv_AddMember(int client_fd, char *JSON)
 {
@@ -116,6 +117,7 @@ int Group_Srv_Create(int client_fd, char *buf)
     free(out);
     return 1;
 }
+
 int Group_Srv_GetList(int client_fd, char *JSON)
 {
     // char buf[MSG_LEN];
@@ -258,4 +260,55 @@ void Group_Srv_Quit(int client_fd, const char *JSON)
         item = cJSON_GetObjectItem(root, "uid");
         Group_Perst_DeleteMember(gid, item->valueint);
     }
+}
+void Group_Srv_RemoveMember(int client_fd, const char *JSON)
+{
+    char name[30];
+    cJSON *root = cJSON_Parse(JSON);
+    cJSON *item = cJSON_GetObjectItem(root, "gid");
+    int gid = item->valueint;
+    item = cJSON_GetObjectItem(root, "name");
+    strcpy(name, item->valuestring);
+    item = cJSON_GetObjectItem(root, "owner");
+    int owner = item->valueint;
+    int uid = Account_Perst_GetUserUidFromName(name);
+    int res = 0;
+
+    cJSON_Delete(root);
+    root = cJSON_CreateObject();
+    item = cJSON_CreateString("R");
+    cJSON_AddItemToObject(root, "type", item);
+    if (uid == owner)
+    {
+        item = cJSON_CreateString("无法删除群主");
+        printf("无法删除群主\n");
+    }
+    else if (!Group_Perst_HavePermission(gid, uid))
+    {
+        item = cJSON_CreateString("你没有权限");
+        printf("你没有权限\n");
+    }
+    else if (!Group_Perst_FindGroupMember(gid, uid))
+    {
+        item = cJSON_CreateString("该用户不存在");
+        printf("该用户不存在\n");
+    }
+    else if (Group_Perst_HavePermission(gid, uid))
+    {
+        res = 1;
+        item = cJSON_CreateString("成员删除成功");
+        printf("成员删除成功\n");
+    }
+    cJSON_AddItemToObject(root, "reason", item);
+    item = cJSON_CreateBool(res);
+    cJSON_AddItemToObject(root, "res", item);
+    char *out = cJSON_Print(root);
+    cJSON_Delete(root);
+    if (send(client_fd, out, MSG_LEN, 0) <= 0)
+    {
+        perror("send");
+        free(out);
+        return;
+    }
+    return;
 }

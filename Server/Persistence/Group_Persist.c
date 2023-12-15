@@ -162,6 +162,47 @@ int Group_Perst_GetGroupMember(group_member_t *GroupMember, int gid)
     return 1;
 }
 
+int Group_Perst_FindGroupMember(int gid, int uid)
+{
+    char SQL[100];
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    sprintf(SQL, "SELECT * FROM `group_member` WHERE `uid` = '%d' And `gid` = '%d'", uid, gid);
+    if (mysql_real_query(mysql, SQL, strlen(SQL)))
+    {
+        printf("%s\n", mysql_error(mysql));
+        return 0;
+    }
+    res = mysql_store_result(mysql);
+    row = mysql_fetch_row(res);
+    if (row)
+        return 1;
+    mysql_free_result(res);
+    return 0;
+}
+
+int Group_Perst_HavePermission(int gid, int uid)
+{
+    char SQL[100];
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    sprintf(SQL, "SELECT * FROM `group_member` WHERE `uid` = '%d' And `gid` = '%d' And `permission`!='0'", uid, gid);
+    if (mysql_real_query(mysql, SQL, strlen(SQL)))
+    {
+        printf("%s\n", mysql_error(mysql));
+        return 0;
+    }
+    res = mysql_store_result(mysql);
+    row = mysql_fetch_row(res);
+    if (row)
+    {
+        mysql_free_result(res);
+        return 1;
+    }
+    mysql_free_result(res);
+    return 0;
+}
+
 group_t *Group_Perst_GetInfo(int gid)
 {
     MYSQL_RES *res;

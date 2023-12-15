@@ -22,7 +22,7 @@ void Main_UI_Hello()
         system("clear");
         printf(
             "==============================\n"
-            " ****欢迎使来到聊天室****\n"
+            "*****欢迎使来到Eggy聊天室*****\n"
             "==============================\n");
         printf(
             "功能选项:\n"
@@ -41,6 +41,7 @@ void Main_UI_Hello()
             Account_UI_SignIn();
             break;
         case 3:
+            Account_UI_Exit();
             return;
             break;
         default:
@@ -62,13 +63,12 @@ void Main_UI_Menu()
         Friends_UI_ShowList();
         Group_UI_ShowList();
         Friends_UI_ShowApply();
-        printf("--------------------------------\n");
+        printf("--------------功能--------------\n");
         printf("1.选择好友|2.选择群聊|3.处理申请\n"
                "4.添加好友|5.删除好友|6.创建群聊\n"
                "7.注销登录\n");
         printf("--------------------------------\n"
-               "功能选择:");
-
+               "请选择功能:");
         scanf("%c", &choice);
         if (choice == '\n')
             continue;

@@ -53,3 +53,12 @@ void Group_UI_AddMember(int gid)
     }
     Group_Srv_AddMember(gid, f->uid);
 }
+
+// void Group_UI_RemoveMember()
+// {
+//     char name[30];
+//     printf("请输入要删除的成员名称:");
+//     scanf("%30s", name);
+//     ffflush();
+//     Group_Srv_RemoveMember(curGroup, name);
+// }

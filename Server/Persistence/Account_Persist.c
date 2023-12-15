@@ -93,3 +93,23 @@ char *Account_Perst_GetUserNameFromUid(int uid)
     mysql_free_result(res);
     return rtn;
 }
+
+int Account_Perst_GetUserUidFromName(char *name)
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    int rtn = 0;
+    char SQL[100];
+    sprintf(SQL, "SELECT uid FROM account WHERE `name` = '%s'", name);
+    if (mysql_real_query(mysql, SQL, strlen(SQL)))
+    {
+        printf("%s\n", mysql_error(mysql));
+        return 0;
+    }
+    res = mysql_store_result(mysql);
+    row = mysql_fetch_row(res);
+    if (row)
+        rtn = atoi(row[0]);
+    mysql_free_result(res);
+    return rtn;
+}

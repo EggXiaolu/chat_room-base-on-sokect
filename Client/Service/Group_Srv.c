@@ -287,3 +287,44 @@ void Group_Srv_Delete(const char *massage)
         }
     }
 }
+
+void Group_Srv_RemoveMember(group_t *curGroup, char *name)
+{
+    cJSON *root = cJSON_CreateObject();
+    cJSON *item = cJSON_CreateString("d");
+    cJSON_AddItemToObject(root, "type", item);
+    item = cJSON_CreateNumber(curGroup->gid);
+    cJSON_AddItemToObject(root, "gid", item);
+    item = cJSON_CreateString(name);
+    cJSON_AddItemToObject(root, "name", item);
+    item = cJSON_CreateNumber(curGroup->owner);
+    cJSON_AddItemToObject(root, "owner", item);
+    char *out = cJSON_Print(root);
+    cJSON_Delete(root);
+    if (send(sock_fd, out, MSG_LEN, 0) <= 0)
+    {
+        free(out);
+        perror("send");
+        return;
+    }
+    free(out);
+    My_Lock();
+    root = cJSON_Parse(massage);
+    item = cJSON_GetObjectItem(root, "res");
+    int res = item->valueint;
+    if (res)
+    {
+        printf("删除成功!\n");
+        getchar();
+    }
+    else
+    {
+        item = cJSON_GetObjectItem(root, "reason");
+        printf("删除失败:");
+        printf("%s\n", item->valuestring);
+        getchar();
+    }
+    cJSON_Delete(root);
+    My_Unlock();
+    return;
+}
