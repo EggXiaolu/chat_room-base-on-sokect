@@ -8,10 +8,10 @@ void Account_Srv_RecvIsOnline(char *JSON);
 /*
  * 注销登录
  */
-int Account_Srv_Out(int uid);
+int Account_Srv_Out();
 
-int Account_Srv_SignIn(const char *name , int sex ,const char *password);
+int Account_Srv_SignIn(const char *name, int sex, const char *password);
 
-int Account_Srv_Login(const char *name , const char *password);
+int Account_Srv_Login(const char *name, const char *password);
 
 #endif

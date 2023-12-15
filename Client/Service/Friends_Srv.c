@@ -132,6 +132,47 @@ int Friends_Srv_SendAdd(const char *fname)
     return rtn;
 }
 
+int Friends_Srv_SendDel(friends_t *f)
+{
+    int rtn;
+    cJSON *root = cJSON_CreateObject();
+    cJSON *item = cJSON_CreateString("D");
+    cJSON_AddItemToObject(root, "type", item);
+    item = cJSON_CreateNumber(gl_uid);
+    cJSON_AddItemToObject(root, "uid", item);
+    item = cJSON_CreateString(f->name);
+    cJSON_AddItemToObject(root, "fname", item);
+    char *out = cJSON_Print(root);
+    if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
+    {
+        perror("send: 请求服务器失败");
+        return 0;
+    }
+    free(out);
+    cJSON_Delete(root);
+    My_Lock();
+    root = cJSON_Parse(massage);
+    item = cJSON_GetObjectItem(root, "res");
+    int res = item->valueint;
+    if (res)
+    {
+        List_FreeNode(FriendsList, f, friends_t)
+            printf("好友删除成功!");
+        getchar();
+        rtn = 1;
+    }
+    else
+    {
+        item = cJSON_GetObjectItem(root, "reason");
+        printf("删除失败: %s", item->valuestring);
+        getchar();
+        rtn = 0;
+    }
+    cJSON_Delete(root);
+    My_Unlock();
+    return rtn;
+}
+
 int Friends_Srv_RecvAdd(const char *JSON)
 {
     friends_t *newNode;

@@ -4,7 +4,10 @@
         "common.h": "c",
         "cdecode.h": "c",
         "ostream": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "list": "c",
+        "cjson.h": "c",
+        "friends_srv.h": "c"
     },
     "sqltools.connections": [
         {

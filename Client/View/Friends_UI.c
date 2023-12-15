@@ -71,6 +71,24 @@ void Friends_UI_Add()
     Friends_Srv_SendAdd(fname);
 }
 
+void Friends_UI_Del()
+{
+    char fname[30];
+    printf("请输入待删除的好友名:");
+    scanf("%30s", fname);
+    ffflush();
+    friends_t *f;
+    List_ForEach(FriendsList, f)
+    {
+        if (strcmp(f->name, fname) == 0)
+        {
+            Friends_Srv_SendDel(f);
+            return;
+        }
+    }
+    printf("该用户不是你的好友!\n");
+}
+
 void Friends_UI_Apply()
 {
     friends_t *f;

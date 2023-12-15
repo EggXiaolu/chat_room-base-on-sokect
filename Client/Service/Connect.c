@@ -101,6 +101,8 @@ void *thread(void *arg)
         case 'm':
             Group_Srv_ShowMember(massage);
             break;
+        case 'd':
+            break;
         case 'D':
             Group_Srv_Delete(massage);
             break;
@@ -130,7 +132,7 @@ void Connect(const char *host, int port)
     clie_addr.sin_port = htons(port);
     clie_addr.sin_addr.s_addr = inet_addr(host);
     sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-    
+
     if (sock_fd < 0)
     {
         perror("socket");

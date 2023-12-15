@@ -1,6 +1,6 @@
 
-#include<stdio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
 #include "./Group_UI.h"
 #include "../Common/Common.h"
 #include "../Common/List.h"
@@ -9,38 +9,47 @@
 
 extern group_t *GroupList;
 extern friends_t *FriendsList;
-void Group_UI_Create(){
+void Group_UI_Create()
+{
     char gname[30];
     printf("请输入要创建的群名称:");
-    sgets(gname,30);
+    sgets(gname, 30);
     Group_Srv_Create(gname);
 }
-void Group_UI_ShowList(){
+
+void Group_UI_ShowList()
+{
     static int g_num = 0;
-    printf("▶ 我的群聊(%d)\n" ,g_num);
+    printf("▶ 我的群聊(%d)\n", g_num);
     g_num = 0;
-    group_t * g;
-    List_ForEach(GroupList ,g){
-        printf("   %s",g -> name);
-        if(g -> NewMsgNum > 0) printf(" (\e[31m%d\e[0m)",g -> NewMsgNum);
+    group_t *g;
+    List_ForEach(GroupList, g)
+    {
+        printf("   %s", g->name);
+        if (g->NewMsgNum > 0)
+            printf(" (\e[31m%d\e[0m)", g->NewMsgNum);
         printf("\n");
-        g_num ++;
+        g_num++;
     }
 }
 
-void Group_UI_AddMember(int gid){
-    char name[30]; 
+void Group_UI_AddMember(int gid)
+{
+    char name[30];
     printf("请输入要邀请的好友名称:");
-    scanf("%30s",name);
+    scanf("%30s", name);
     ffflush();
     friends_t *f;
-    List_ForEach(FriendsList ,f){
-        if(strcmp(f -> name ,name) == 0) break;
+    List_ForEach(FriendsList, f)
+    {
+        if (strcmp(f->name, name) == 0)
+            break;
     }
-    if(f == NULL){
-        printf("%s 不是你的好友，无法邀请" ,name);
+    if (f == NULL)
+    {
+        printf("%s 不是你的好友，无法邀请", name);
         getchar();
         return;
     }
-    Group_Srv_AddMember(gid ,f -> uid);
+    Group_Srv_AddMember(gid, f->uid);
 }

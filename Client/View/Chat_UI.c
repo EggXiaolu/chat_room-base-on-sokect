@@ -219,7 +219,8 @@ void Chat_UI_Group()
         }
         printf("---------------------------------------\n"
                "/r 返回上级| /m  聊天记录| /l 查看群成员\n"
-               "/a 邀请好友| /q 退/解散群| 回车 发送/刷新\n"
+               "/a 邀请好友| /q 退/解散群| /d 删除群成员\n"
+               "回车 发送/刷新\n"
                "---------------------------------------\n");
         printf("消息/功能:");
         sgets(msg, 1000);
@@ -253,6 +254,10 @@ void Chat_UI_Group()
             // 退群或解散群
             Group_Srv_Quit(curGroup);
             curGroup = NULL;
+        }
+        else if (strcmp(msg, "/d") == 0)
+        {
+            
         }
         else
         {

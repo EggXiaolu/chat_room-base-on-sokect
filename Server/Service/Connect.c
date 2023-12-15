@@ -61,12 +61,17 @@ void *thread(void *arg)
             // 添加好友
             Friends_Srv_Add(client_fd, buf);
             break;
+        case 'D':
+            // 删除好友
+            Friends_Srv_Del(client_fd, buf);
         case 'G':
             // 获取好友列表
+            printf("好友列表\n");
             Friends_Srv_GetList(client_fd, buf);
             break;
         case 'g':
             // 获取群列表
+            printf("获取群列表\n");
             Group_Srv_GetList(client_fd, buf);
             break;
         case 'P':
@@ -82,9 +87,11 @@ void *thread(void *arg)
             Chat_Srv_File(buf);
             break;
         case 'O':
+            // 注销
             Account_Srv_Out(client_fd, buf);
             break;
         case 'a':
+            // 处理申请
             Friends_Srv_Apply(client_fd, buf);
             break;
         case 'c':

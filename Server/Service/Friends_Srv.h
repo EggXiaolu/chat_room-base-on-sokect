@@ -29,9 +29,14 @@ int Friends_Srv_GetList(int sock_fd, const char *JSON);
  */
 int Friends_Srv_Add(int sock_fd, const char *JSON);
 
+// 向申请者发送消息
 int Friends_Srv_SendAdd(int uid, int fuid, char *type);
 
+// 删除好友
 int Friends_Srv_Del(int sock_fd, const char *JSON);
+
+// 向被删除者发送消息】
+int Friends_Srv_SendDel(int uid, int fuid, char *type);
 
 int Friends_Srv_Apply(int sock_fd, const char *JSON);
 

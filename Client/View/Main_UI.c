@@ -64,7 +64,8 @@ void Main_UI_Menu()
         Friends_UI_ShowApply();
         printf("--------------------------------\n");
         printf("1.选择好友|2.选择群聊|3.处理申请\n"
-               "4.添加好友|5.创建群聊|6.注销登录\n");
+               "4.添加好友|5.删除好友|6.创建群聊\n"
+               "7.注销登录\n");
         printf("--------------------------------\n"
                "功能选择:");
 
@@ -87,11 +88,14 @@ void Main_UI_Menu()
             Friends_UI_Add();
             break;
         case '5':
-            Group_UI_Create();
+            Friends_UI_Del();
             break;
         case '6':
-            Account_Srv_Out(gl_uid);
+            Group_UI_Create();
+            break;
+        case '7':
+            Account_Srv_Out();
             break;
         }
-    } while (choice != '6');
+    } while (choice != '7');
 }

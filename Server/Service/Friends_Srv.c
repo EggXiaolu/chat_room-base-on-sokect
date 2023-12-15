@@ -54,7 +54,6 @@ int Friends_Srv_GetList(int sock_fd, const char *JSON)
         }
         free(out);
     }
-
     // 发送一个uid为0的数据告诉客户端发送完成
     root = cJSON_CreateObject();
     item = cJSON_CreateString("L");
@@ -129,17 +128,11 @@ int Friends_Srv_SendAdd(int uid, int fuid, char *type)
 {
     int f_sock_fd = -1;
     friends_t *NewFriends = (friends_t *)malloc(sizeof(friends_t));
-    if (*type == 'A')
+    NewFriends->uid = fuid;
+    Friends_Perst_GetFriendInfo(NewFriends);
+    f_sock_fd = Chat_Srv_GetFriendSock(uid);
+    if (*type != 'A')
     {
-        NewFriends->uid = uid;
-        Friends_Perst_GetFriendInfo(NewFriends);
-        f_sock_fd = Chat_Srv_GetFriendSock(fuid);
-    }
-    else
-    {
-        NewFriends->uid = fuid;
-        Friends_Perst_GetFriendInfo(NewFriends);
-        f_sock_fd = Chat_Srv_GetFriendSock(uid);
         NewFriends->state = 1;
     }
     cJSON *root = cJSON_CreateObject();
@@ -205,5 +198,34 @@ int Friends_Srv_Apply(int sock_fd, const char *JSON)
         }
         free(out);
     }
+    return 1;
+}
+
+int Friends_Srv_Del(int sock_fd, const char *JSON)
+{
+    cJSON *root = cJSON_Parse(JSON);
+    cJSON *item = cJSON_GetObjectItem(root, "uid");
+    int uid = item->valueint;
+    item = cJSON_GetObjectItem(root, "fname");
+    int fuid = Account_Perst_IsUserName(item->valuestring);
+    cJSON_Delete(root);
+    root = cJSON_CreateObject();
+    item = cJSON_CreateString("R");
+    cJSON_AddItemToObject(root, "type", item);
+    item = cJSON_CreateBool((fuid != 0));
+    cJSON_AddItemToObject(root, "res", item);
+    if (fuid == 0)
+    {
+        item = cJSON_CreateString("用户名不存在");
+        cJSON_AddItemToObject(root, "reason", item);
+    }
+    char *out = cJSON_Print(root);
+    if (send(sock_fd, (void *)out, MSG_LEN, 0) <= 0)
+    {
+        perror("send");
+        return 0;
+    }
+    free(out);
+    Friends_Perst_Del(uid, fuid);
     return 1;
 }

@@ -25,7 +25,7 @@ int Account_Perst_IsUserName(const char *name)
     MYSQL_RES *res;
     MYSQL_ROW row;
     int rtn = 0;
-    sprintf(SQL, "SELECT uid FROM account WHERE name = '%s'", name);
+    sprintf(SQL, "SELECT uid FROM account WHERE `name` = '%s'", name);
     if (mysql_real_query(mysql, SQL, strlen(SQL)))
     {
         return 0;

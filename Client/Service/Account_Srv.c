@@ -40,13 +40,13 @@ void Account_Srv_RecvIsOnline(char *JSON)
 /*
  * 注销登录
  */
-int Account_Srv_Out(int uid)
+int Account_Srv_Out()
 {
     int rtn;
     cJSON *root = cJSON_CreateObject();
     cJSON *item = cJSON_CreateString("O");
     cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateNumber(uid);
+    item = cJSON_CreateNumber(gl_uid);
     cJSON_AddItemToObject(root, "uid", item);
     char *out = cJSON_Print(root);
     if (send(sock_fd, (void *)out, 1024, 0) <= 0)
@@ -164,7 +164,6 @@ int Account_Srv_Login(const char *name, const char *password)
         rtn = item->valueint;
         printf("登录成功!请稍候..");
         fflush(stdout);
-        sleep(2);
     }
     else
     {

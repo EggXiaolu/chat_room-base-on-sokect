@@ -77,7 +77,7 @@
 	}
 
 // 判断链表是否为空，list为头指针
-#define List_IsEmpty(list)  (((list) != NULL)
+#define List_IsEmpty(list) (((list) != NULL))
 
 // 删除并释放链表结点node，
 #define List_FreeNode(head, node, list_node_t)       \
