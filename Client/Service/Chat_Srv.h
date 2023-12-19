@@ -2,23 +2,25 @@
 #ifndef _CHAT_SRV_H
 #define _CHAT_SRV_H
 #include "../Common/Common.h"
+// 私聊链表
 typedef struct private_msg
 {
-    int from_uid;
-    char name[30];
-    char msg[1000];
-    char time[25];
+    int from_uid;   // 发送方id
+    char name[30];  // 用户名
+    char msg[1000]; // 消息
+    char time[25];  // 时间
     struct private_msg *next;
 } private_msg_t;
 
+// 群聊链表
 typedef struct group_msg
 {
-    int from_uid;
-    int gid;
-    char uname[30];
-    char gname[30];
-    char msg[1000];
-    char time[25];
+    int from_uid;   // 发送方id
+    int gid;        // 群组id
+    char uname[30]; // 用户名
+    char gname[30]; // 群组名
+    char msg[1000]; // 消息
+    char time[25];  // 时间
     struct group_msg *next;
 } group_msg_t;
 

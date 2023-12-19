@@ -26,7 +26,7 @@ int Group_Perst_GetGroupMember(group_member_t *GroupMember, int gid);
 // 查找成员
 int Group_Perst_FindGroupMember(int gid, int uid);
 
-// 查看成员是否拥有群权限
+// 查看成员是否拥有群权限，有权限返回1，否则返回0
 int Group_Perst_HavePermission(int gid, int uid);
 group_t *Group_Perst_GetInfo(int gid);
 

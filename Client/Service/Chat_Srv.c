@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <sys/stat.h>
 #include "./Connect.h"
 #include "./Chat_Srv.h"
 #include "../Common/cJSON.h"
@@ -35,6 +36,7 @@ int Chat_Srv_RecvFile(const char *JSON)
     strcat(buf, item->valuestring);
     item = cJSON_GetObjectItem(root, "size");
     int size = item->valueint;
+    // base64解码并写入缓冲区
     base64_decodestate state_in;
     base64_init_decodestate(&state_in);
     base64_decode_block(buf, strlen(buf), code_out, &state_in);
@@ -82,6 +84,7 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
         base64_encode_block(buf, size, code_out, &state_in);
         if (state_in.step != step_A)
         {
+            // 如果不是base64编码
             memset(code_end, 0, sizeof(code_end));
             base64_encode_blockend(code_end, &state_in);
             strcat(code_out, code_end);
@@ -103,7 +106,7 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
         out = cJSON_Print(root);
         cJSON_Delete(root);
         int ret;
-        printf("%s\n", out);
+        // printf("%s\n", out);
         if ((ret = send(sock_fd, out, MSG_LEN, 0)) <= 0)
         {
             perror("send");

@@ -22,8 +22,8 @@ void *thread(void *arg)
 {
     int ret, recv_len;
     cJSON *root, *item;
-    if (arg == NULL)
-        arg = NULL; // 为了消除警告
+    // if (arg == NULL)
+    //     arg = NULL; // 为了消除警告
     while (1)
     {
         /*
@@ -69,8 +69,8 @@ void *thread(void *arg)
             Chat_Srv_RecvGroup(massage);
             break;
         case 'F':
-            Chat_Srv_RecvFile(massage);
             // 处理文件请求
+            Chat_Srv_RecvFile(massage);
             break;
         case 'Q':
             // 群聊
@@ -105,9 +105,11 @@ void *thread(void *arg)
         case 'd':
             break;
         case 'D':
+            // 删除群组
             Group_Srv_Delete(massage);
             break;
         case 'E':
+            // 打印私聊历史
             Chat_Srv_ShowPrivateRec(massage);
             break;
         }

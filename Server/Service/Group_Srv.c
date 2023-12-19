@@ -283,8 +283,9 @@ void Group_Srv_RemoveMember(int client_fd, const char *JSON)
         item = cJSON_CreateString("无法删除群主");
         printf("无法删除群主\n");
     }
-    else if (!Group_Perst_HavePermission(gid, uid))
+    else if (!Group_Perst_HavePermission(gid, owner))
     {
+        printf("uid=%u\ngid=%d\n", uid, gid);
         item = cJSON_CreateString("你没有权限");
         printf("你没有权限\n");
     }
@@ -293,11 +294,19 @@ void Group_Srv_RemoveMember(int client_fd, const char *JSON)
         item = cJSON_CreateString("该用户不存在");
         printf("该用户不存在\n");
     }
-    else if (Group_Perst_HavePermission(gid, uid))
+    else
     {
-        res = 1;
-        item = cJSON_CreateString("成员删除成功");
-        printf("成员删除成功\n");
+        if (Group_Perst_DeleteMember(gid, uid))
+        {
+            res = 1;
+            item = cJSON_CreateString("成员删除成功");
+            printf("成员删除成功\n");
+        }
+        else
+        {
+            item = cJSON_CreateString("未知错误");
+            printf("未知错误\n");
+        }
     }
     cJSON_AddItemToObject(root, "reason", item);
     item = cJSON_CreateBool(res);
