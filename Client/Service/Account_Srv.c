@@ -129,22 +129,25 @@ int Account_Srv_Login(const char *name, const char *password)
 {
     // printf("进入登录函数\n");
     // char buf[1024];
+    struct Account *user;
+    user->type = 'L';
+    strcpy(user->name, name);
+    strcpy(user->password, password);
     int rtn;
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("L");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateString(name);
-    cJSON_AddItemToObject(root, "name", item);
-    item = cJSON_CreateString(password);
-    cJSON_AddItemToObject(root, "password", item);
-    char *out = cJSON_Print(root);
-
-    if (send(sock_fd, out, 1024, 0) < 0)
+    // cJSON *root = cJSON_CreateObject();
+    // cJSON *item = cJSON_CreateString("L");
+    // cJSON_AddItemToObject(root, "type", item);
+    // item = cJSON_CreateString(name);
+    // cJSON_AddItemToObject(root, "name", item);
+    // item = cJSON_CreateString(password);
+    // cJSON_AddItemToObject(root, "password", item);
+    // char *out = cJSON_Print(root);
+    if (send(sock_fd, user, 1024, 0) < 0)
     {
         perror("send: 请求服务器失败");
         return 0;
     }
-    free(out);
+    // free(out);
     // printf("%s\n",massage);
     My_Lock();
     /*
@@ -154,29 +157,29 @@ int Account_Srv_Login(const char *name, const char *password)
     pthread_cond_wait(&cond ,&mutex);
     printf("登录条件变量为真\n");
     */
-    cJSON_Delete(root);
-    root = cJSON_Parse(massage);
-    item = cJSON_GetObjectItem(root, "res");
-    int res = item->valueint;
-    if (res == 1)
-    {
-        item = cJSON_GetObjectItem(root, "uid");
-        rtn = item->valueint;
-        printf("登录成功!请稍候..");
-        fflush(stdout);
-    }
-    else
-    {
-        item = cJSON_GetObjectItem(root, "reason");
-        rtn = 0;
-        printf("登录失败: %s", item->valuestring);
-        getchar();
-    }
-    cJSON_Delete(root);
-    /*printf("登录解锁前\n");
-    pthread_mutex_unlock(&mutex);
-    pthread_cond_signal(&cond);
-    printf("登录解锁后\n");*/
-    My_Unlock();
+    // cJSON_Delete(root);
+    // root = cJSON_Parse(massage);
+    // item = cJSON_GetObjectItem(root, "res");
+    // int res = item->valueint;
+    // if (res == 1)
+    // {
+    //     item = cJSON_GetObjectItem(root, "uid");
+    //     rtn = item->valueint;
+    //     printf("登录成功!请稍候..");
+    //     fflush(stdout);
+    // }
+    // else
+    // {
+    //     item = cJSON_GetObjectItem(root, "reason");
+    //     rtn = 0;
+    //     printf("登录失败: %s", item->valuestring);
+    //     getchar();
+    // }
+    // cJSON_Delete(root);
+    // /*printf("登录解锁前\n");
+    // pthread_mutex_unlock(&mutex);
+    // pthread_cond_signal(&cond);
+    // printf("登录解锁后\n");*/
+    // My_Unlock();
     return rtn;
 }

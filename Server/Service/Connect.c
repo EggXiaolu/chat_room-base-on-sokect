@@ -15,21 +15,20 @@
 #define LISTEN_NUM 12 // 连接请求队列长度
 #define MSG_LEN 1024
 online_t *OnlineList;
-// static char buf[1024];
+static char buf[1024];
 void *thread(void *arg)
 {
     char buf[MSG_LEN];
-    int ret, recv_len;
     cJSON *root, *item;
-    char choice[100];
     int client_fd = (int)(long)arg;
+    struct msg_t *massage;
     while (1)
     {
-        recv_len = 0;
+        int recv_len = 0;
         while (recv_len < MSG_LEN)
         {
-            ret = 0;
-            if ((ret = recv(client_fd, buf + recv_len, MSG_LEN - recv_len, 0)) <= 0)
+            int ret = 0;
+            if ((ret = recv(client_fd, massage + recv_len, MSG_LEN - recv_len, 0)) <= 0)
             {
                 int uid = Account_Srv_ChIsOnline(-1, 0, client_fd);
                 if (uid != -1)
@@ -42,16 +41,14 @@ void *thread(void *arg)
             }
             recv_len += ret;
         }
-        root = cJSON_Parse(buf);
-        item = cJSON_GetObjectItem(root, "type");
-        strcpy(choice, item->valuestring);
-        cJSON_Delete(root);
+        char choice = massage->type;
         //        printf("收到: sockfd = %d\n%s\n",client_fd,buf);
-        switch (choice[0])
+        switch (choice)
         {
         case 'L':
             // 登录
-            Account_Srv_Login(client_fd, buf);
+            printf("login\n");
+            Account_Srv_Login(client_fd, massage->msg);
             break;
         case 'S':
             // 注册

@@ -3,6 +3,14 @@
 #include "../Common/cJSON.h"
 #include "Connect.h"
 
+// 用户基本信息
+struct Account
+{
+    char type;
+    char name[24];
+    char password[24];
+};
+
 void Account_Srv_RecvIsOnline(char *JSON);
 
 /*

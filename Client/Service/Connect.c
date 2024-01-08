@@ -21,7 +21,7 @@ char massage[MSG_LEN];
 void *thread(void *arg)
 {
     int ret, recv_len;
-    cJSON *root, *item;
+    struct msg_t *msg;
     // if (arg == NULL)
     //     arg = NULL; // 为了消除警告
     while (1)
@@ -40,7 +40,7 @@ void *thread(void *arg)
         while (recv_len < MSG_LEN)
         {
             ret = 0;
-            if ((ret = recv(sock_fd, massage + recv_len, MSG_LEN - recv_len, 0)) <= 0)
+            if ((ret = recv(sock_fd, msg + recv_len, MSG_LEN - recv_len, 0)) <= 0)
             {
                 perror("recv: 服务器失去响应");
                 exit(0);
@@ -48,9 +48,7 @@ void *thread(void *arg)
             recv_len += ret;
         }
         // printf("收到:%s\n",massage);
-        root = cJSON_Parse(massage);
-        item = cJSON_GetObjectItem(root, "type");
-        switch (item->valuestring[0])
+        switch (msg->type)
         {
         case 'A':
             Friends_Srv_RecvAdd(massage);
@@ -78,6 +76,7 @@ void *thread(void *arg)
         case 'R':
             // 说明此条消息是主线程请求的结果反馈
             // 因此不做处理,等待主线程处理
+            strcpy(massage,msg->msg);
             my_mutex = 1;
             break;
         case 'L':

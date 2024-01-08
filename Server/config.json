@@ -1,8 +1,8 @@
 {
-	"server_port": 5555, //Server端口
-	"db_port": 3305, //mysql端口
-	"host": "127.17.0.2", //mysql地址
-	"user": "root", //mysql用户
-	"pass": "123456", //mysql密码
-	"database": "chat_room" //mysql数据库名称
+	"server_port": 5555,
+	"db_port": 3305,
+	"host": "127.17.0.2",
+	"user": "root", 
+	"pass": "123456",
+	"database": "chat_room" 
 }

@@ -1,5 +1,16 @@
 {
     "files.associations": {
-        "account_persist.h": "c"
+        "account_persist.h": "c",
+        "connect.h": "c",
+        "unistd.h": "c",
+        "account_srv.h": "c",
+        "chat_srv.h": "c",
+        "friends_srv.h": "c",
+        "cjson.h": "c",
+        "friends_persist.h": "c",
+        "in.h": "c",
+        "string.h": "c",
+        "stdio.h": "c",
+        "types.h": "c"
     }
 }

@@ -8,6 +8,12 @@
 #include <arpa/inet.h>
 #include "../Common/Common.h"
 
+typedef struct msg_t
+{
+    char type;
+    char msg[1023];
+} msg_t;
+
 /*
  * 创建并保持socket连接
  */

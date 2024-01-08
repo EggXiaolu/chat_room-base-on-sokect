@@ -15,21 +15,19 @@
  *  C:   Chat
  *  F:   File
  */
-typedef struct {
+typedef struct msg_t
+{
     char type;
     char msg[1023];
 } msg_t;
-
-
 
 /*
  * 创建并保持socket连接
  */
 void Connect(int port);
 
-
 /*
  * 处理JSON消息
  */
-//int
+// int
 #endif

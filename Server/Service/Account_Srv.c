@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "./Connect.h"
 #include "./Account_Srv.h"
 #include "./Chat_Srv.h"
 #include "./Friends_Srv.h"
@@ -187,68 +188,48 @@ int Account_Srv_SignIn(int sock_fd, char *JSON)
     return 0;
 }
 
-int Account_Srv_Login(int sock_fd, char *JSON)
+int Account_Srv_Login(int sock_fd, char *msg)
 {
     char name[30], password[30];
     int uid;
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "name");
-    strcpy(name, item->valuestring);
-    item = cJSON_GetObjectItem(root, "password");
-    strcpy(password, item->valuestring);
-    cJSON_Delete(root);
-    root = cJSON_CreateObject();
-    item = cJSON_CreateString("R");
-    cJSON_AddItemToObject(root, "type", item);
-
+    struct Account *account = (struct Account *)msg;
+    strcpy(name, account->name);
+    strcpy(password, account->password);
+    struct send_msg *send_msg;
+    send_msg->type = "R";
     if ((uid = Account_Perst_IsUserName(name)) == 0)
     {
-        item = cJSON_CreateBool(0);
-        cJSON_AddItemToObject(root, "res", item);
-        item = cJSON_CreateString("用户名不存在");
-        cJSON_AddItemToObject(root, "reason", item);
-        char *out = cJSON_Print(root);
-        if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
+        send_msg->res = 0;
+        strcpy(send_msg->result, "用户不存在");
+        if (send(sock_fd, send_msg, MSG_LEN, 0) < 0)
         {
             // 出错 日志处理
         }
-        cJSON_Delete(root);
-        free(out);
     }
     else
     {
-        // 用户名存在的
+        // 用户名存在
         if (Account_Perst_MatchUserAndPassword(uid, password))
         {
             // 密码对的
             Account_Srv_ChIsOnline(uid, 1, sock_fd);
             // Chat_Srv_SendOfflienPrivateMsg(uid);//推送离线消息
             // 改到在获取完好友列表后推送离线消息
-            item = cJSON_CreateBool(1);
-            cJSON_AddItemToObject(root, "res", item);
-            item = cJSON_CreateNumber(uid);
-            cJSON_AddItemToObject(root, "uid", item);
-            char *out = cJSON_Print(root);
-            if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
+            send_msg->res = 1;
+            strcpy(send_msg->uid, uid);
+            if (send(sock_fd, send_msg, MSG_LEN, 0) < 0)
             {
                 // 出错,记录日志
             }
-            cJSON_Delete(root);
-            free(out);
             return 1;
         }
         // 密码错的
-        item = cJSON_CreateBool(0);
-        cJSON_AddItemToObject(root, "res", item);
-        item = cJSON_CreateString("用户名密码不匹配");
-        cJSON_AddItemToObject(root, "reason", item);
-        char *out = cJSON_Print(root);
-        if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
+        send_msg->res = 0;
+        strcpy(send_msg->result, "用户名密码不匹配");
+        if (send(sock_fd, send_msg, MSG_LEN, 0) < 0)
         {
             // 出错 日志处理
         }
-        cJSON_Delete(root);
-        free(out);
     }
     return 0;
 }

@@ -7,6 +7,7 @@
 #include "Persistence/MySQL.h"
 int main()
 {
+    
     char buf[1024];
     char host[50], user[30], pass[50], database[50];
     int db_port;
@@ -33,7 +34,7 @@ int main()
     strcpy(database, item->valuestring);
     item = cJSON_GetObjectItem(root, "server_port"); // 获取服务器端口
     int server_port = item->valueint;
-
+    
     close(fd);
     cJSON_Delete(root);
     // printf("%s %s %s %s %d\n", host, user, pass, database, port);
