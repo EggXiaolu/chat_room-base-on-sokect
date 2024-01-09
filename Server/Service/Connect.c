@@ -21,14 +21,13 @@ void *thread(void *arg)
     char buf[MSG_LEN];
     cJSON *root, *item;
     int client_fd = (int)(long)arg;
-    struct msg_t *massage;
     while (1)
     {
         int recv_len = 0;
         while (recv_len < MSG_LEN)
         {
             int ret = 0;
-            if ((ret = recv(client_fd, massage + recv_len, MSG_LEN - recv_len, 0)) <= 0)
+            if ((ret = recv(client_fd, buf + recv_len, MSG_LEN - recv_len, 0)) <= 0)
             {
                 int uid = Account_Srv_ChIsOnline(-1, 0, client_fd);
                 if (uid != -1)
@@ -41,14 +40,13 @@ void *thread(void *arg)
             }
             recv_len += ret;
         }
-        char choice = massage->type;
         //        printf("收到: sockfd = %d\n%s\n",client_fd,buf);
-        switch (choice)
+        switch (buf[0])
         {
         case 'L':
             // 登录
             printf("login\n");
-            Account_Srv_Login(client_fd, massage->msg);
+            Account_Srv_Login(client_fd, buf);
             break;
         case 'S':
             // 注册

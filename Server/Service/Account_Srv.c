@@ -16,7 +16,6 @@
 #define MSG_LEN 1024
 
 extern online_t *OnlineList;
-
 int Account_Srv_SendIsOnline(int uid, int is_online)
 {
     int f_sock_fd;
@@ -128,108 +127,65 @@ int Account_Srv_Out(int sock_fd, char *JSON)
     return rtn;
 }
 
-int Account_Srv_SignIn(int sock_fd, char *JSON)
+int Account_Srv_SignIn(int sock_fd, char *msg)
 {
-    char name[30], password[30];
+    char name[64], password[64];
+    char snd_msg[MSG_LEN];
     int sex;
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "name"); // 获取用户输入的昵称
-    strcpy(name, item->valuestring);
-    item = cJSON_GetObjectItem(root, "sex"); // 获取用户输入的性别
-    sex = item->valueint;
-    item = cJSON_GetObjectItem(root, "password"); // 输入用户输入的密码
-    strcpy(password, item->valuestring);
-    cJSON_Delete(root);
-    root = cJSON_CreateObject();
-    item = cJSON_CreateString("R");
-    cJSON_AddItemToObject(root, "type", item);
-
+    int res;
+    sscanf(msg + 1, "\t%s\t%d\t%s\t", name, &sex, password);
     if (Account_Perst_IsUserName(name)) // 检查是否重复
     {
-        item = cJSON_CreateBool(0);
-        cJSON_AddItemToObject(root, "res", item);
-        item = cJSON_CreateString("用户名已存在");
-        cJSON_AddItemToObject(root, "reason", item);
-        char *out = cJSON_Print(root);
-        if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
-        {
-            // 出错 日志处理
-        }
-        cJSON_Delete(root);
-        free(out);
+        res = -1;
     }
     else
     {
         if (Account_Perst_AddUser(name, sex, password))
         {
-            item = cJSON_CreateBool(1);
-            cJSON_AddItemToObject(root, "res", item);
-            char *out = cJSON_Print(root);
-            if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
-            {
-                // 出错,记录日志
-            }
-            cJSON_Delete(root);
-            free(out);
-            return 1;
+            res = 1;
         }
-        item = cJSON_CreateBool(0);
-        cJSON_AddItemToObject(root, "res", item);
-        item = cJSON_CreateString("服务器异常");
-        cJSON_AddItemToObject(root, "reason", item);
-        char *out = cJSON_Print(root);
-        if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
+        else
         {
-            // 出错 日志处理
+            res = -2;
         }
-        cJSON_Delete(root);
-        free(out);
+    }
+    sprintf(snd_msg, "%c\t%d\t", 'R', res);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) < 0)
+    {
+        // 出错 日志处理
     }
     return 0;
 }
 
 int Account_Srv_Login(int sock_fd, char *msg)
 {
-    char name[30], password[30];
+    char snd_msg[MSG_LEN];
+    char name[64], password[64];
+    int res;
     int uid;
-    struct Account *account = (struct Account *)msg;
-    strcpy(name, account->name);
-    strcpy(password, account->password);
-    struct send_msg *send_msg;
-    send_msg->type = "R";
+    sscanf(msg + 1, "\t%s\t%s\t", name, password);
     if ((uid = Account_Perst_IsUserName(name)) == 0)
     {
-        send_msg->res = 0;
-        strcpy(send_msg->result, "用户不存在");
-        if (send(sock_fd, send_msg, MSG_LEN, 0) < 0)
-        {
-            // 出错 日志处理
-        }
+        res = -1;
     }
     else
     {
         // 用户名存在
         if (Account_Perst_MatchUserAndPassword(uid, password))
         {
-            // 密码对的
-            Account_Srv_ChIsOnline(uid, 1, sock_fd);
-            // Chat_Srv_SendOfflienPrivateMsg(uid);//推送离线消息
-            // 改到在获取完好友列表后推送离线消息
-            send_msg->res = 1;
-            strcpy(send_msg->uid, uid);
-            if (send(sock_fd, send_msg, MSG_LEN, 0) < 0)
-            {
-                // 出错,记录日志
-            }
-            return 1;
+            // Account_Srv_ChIsOnline(uid, 1, sock_fd); // 推送上线
+            res = 1;
         }
         // 密码错的
-        send_msg->res = 0;
-        strcpy(send_msg->result, "用户名密码不匹配");
-        if (send(sock_fd, send_msg, MSG_LEN, 0) < 0)
+        else
         {
-            // 出错 日志处理
+            res = -2;
         }
+    }
+    sprintf(snd_msg, "%c\t%d\t%d\t", 'R', res, uid);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) < 0)
+    {
+        // 出错 日志处理
     }
     return 0;
 }
