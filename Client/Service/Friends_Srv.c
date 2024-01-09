@@ -13,7 +13,7 @@ extern int sock_fd;
 // extern pthread_mutex_t mutex;
 extern int my_mutex;
 // extern int your_mutex;
-extern char massage[1024];
+extern char msg[1024];
 friends_t *FriendsList;
 
 int Friends_Srv_GetList()
@@ -42,7 +42,7 @@ int Friends_Srv_GetList()
     {
         // pthread_mutex_lock(&mutex);
         My_Lock();
-        root = cJSON_Parse(massage);
+        root = cJSON_Parse(msg);
         item = cJSON_GetObjectItem(root, "uid");
         if (item->valueint == 0)
         {
@@ -73,7 +73,7 @@ int Friends_Srv_GetList()
     }
     // pthread_mutex_lock(&mutex);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res == 1)
@@ -111,7 +111,7 @@ int Friends_Srv_SendAdd(const char *fname)
     free(out);
     cJSON_Delete(root);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res)
@@ -151,7 +151,7 @@ int Friends_Srv_SendDel(friends_t *f)
     free(out);
     cJSON_Delete(root);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res)

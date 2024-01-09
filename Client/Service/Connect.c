@@ -16,12 +16,11 @@ int sock_fd;
 // pthread_mutex_t mutex;
 // pthread_cond_t cond;
 extern int my_mutex;
-char massage[MSG_LEN];
+char msg[MSG_LEN];
 
 void *thread(void *arg)
 {
     int ret, recv_len;
-    struct msg_t *msg;
     // if (arg == NULL)
     //     arg = NULL; // 为了消除警告
     while (1)
@@ -48,27 +47,27 @@ void *thread(void *arg)
             recv_len += ret;
         }
         // printf("收到:%s\n",massage);
-        switch (msg->type)
+        switch (msg[0])
         {
         case 'A':
-            Friends_Srv_RecvAdd(massage);
+            Friends_Srv_RecvAdd(msg);
             // 处理好友请求
             break;
         case 'a':
             // 处理好友请求反馈
-            Friends_Srv_ApplyRes(massage);
+            Friends_Srv_ApplyRes(msg);
             break;
         case 'P':
             // 处理私聊消息
-            Chat_Srv_RecvPrivate(massage);
+            Chat_Srv_RecvPrivate(msg);
             break;
         case 'p':
             // 处理群聊消息
-            Chat_Srv_RecvGroup(massage);
+            Chat_Srv_RecvGroup(msg);
             break;
         case 'F':
             // 处理文件请求
-            Chat_Srv_RecvFile(massage);
+            Chat_Srv_RecvFile(msg);
             break;
         case 'Q':
             // 群聊
@@ -76,7 +75,6 @@ void *thread(void *arg)
         case 'R':
             // 说明此条消息是主线程请求的结果反馈
             // 因此不做处理,等待主线程处理
-            strcpy(massage,msg->msg);
             my_mutex = 1;
             break;
         case 'L':
@@ -91,25 +89,25 @@ void *thread(void *arg)
             break;
         case 'I':
             // 好友上下线请求
-            Account_Srv_RecvIsOnline(massage);
+            Account_Srv_RecvIsOnline(msg);
             break;
         case 'J':
             // 被邀请加入群聊或创建群聊时接收群信息
-            Group_Srv_Join(massage);
+            Group_Srv_Join(msg);
             break;
         case 'm':
             // 打印群成员
-            Group_Srv_ShowMember(massage);
+            Group_Srv_ShowMember(msg);
             break;
         case 'd':
             break;
         case 'D':
             // 删除群组
-            Group_Srv_Delete(massage);
+            Group_Srv_Delete(msg);
             break;
         case 'E':
             // 打印私聊历史
-            Chat_Srv_ShowPrivateRec(massage);
+            Chat_Srv_ShowPrivateRec(msg);
             break;
         }
         /*

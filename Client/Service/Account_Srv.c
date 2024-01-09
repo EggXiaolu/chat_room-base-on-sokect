@@ -13,7 +13,7 @@ extern int sock_fd;
 // extern pthread_mutex_t mutex;
 // extern pthread_cond_t cond;
 extern int my_mutex;
-extern char massage[1024];
+extern char msg[1024];
 extern friends_t *FriendsList;
 extern int gl_uid;
 
@@ -60,7 +60,7 @@ int Account_Srv_Out()
     // pthread_mutex_lock(&mutex);
     // pthread_cond_wait(&cond ,&mutex);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     if (item->valueint == 0)
     {
@@ -82,104 +82,69 @@ int Account_Srv_Out()
 
 int Account_Srv_SignIn(const char *name, int sex, const char *password)
 {
-    // char buf[1024];
-    int rtn;
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("S");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateString(name);
-    cJSON_AddItemToObject(root, "name", item);
-    item = cJSON_CreateBool(sex);
-    cJSON_AddItemToObject(root, "sex", item);
-    item = cJSON_CreateString(password);
-    cJSON_AddItemToObject(root, "password", item);
-    char *out = cJSON_Print(root);
-    if (send(sock_fd, (void *)out, 1024, 0) < 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%s\t%d\t%s\t", 'S', name, sex, password);
+    if (send(sock_fd, snd_msg, 1024, 0) < 0)
     {
         perror("send: 请求服务器失败");
         return 0;
     }
-    free(out);
-    cJSON_Delete(root);
-    // pthread_mutex_lock(&mutex);
-    // pthread_cond_wait(&cond ,&mutex);
     My_Lock();
-    root = cJSON_Parse(massage);
-    item = cJSON_GetObjectItem(root, "res");
-    int res = item->valueint;
-    if (res == 1)
+    int res, rtn;
+    sscanf(msg + 1, "\t%d\t", &res);
+    switch (res)
     {
-        printf("注册成功!按任意键继续");
+    case 1:
+        printf("注册成功!按任意键继续...");
         getchar();
         rtn = 1;
-    }
-    else
-    {
-        item = cJSON_GetObjectItem(root, "reason");
-        printf("注册失败: %s", item->valuestring);
+        break;
+    case -1:
+        printf("注册失败: 用户名已存在");
+        getchar();
+        rtn = 0;
+        break;
+    case -2:
+        printf("注册失败: 数据库错误");
         getchar();
         rtn = 0;
     }
-    cJSON_Delete(root);
-    // pthread_mutex_unlock(&mutex);
     My_Unlock();
     return rtn;
 }
 int Account_Srv_Login(const char *name, const char *password)
 {
-    // printf("进入登录函数\n");
-    // char buf[1024];
-    struct Account *user;
-    user->type = 'L';
-    strcpy(user->name, name);
-    strcpy(user->password, password);
-    int rtn;
-    // cJSON *root = cJSON_CreateObject();
-    // cJSON *item = cJSON_CreateString("L");
-    // cJSON_AddItemToObject(root, "type", item);
-    // item = cJSON_CreateString(name);
-    // cJSON_AddItemToObject(root, "name", item);
-    // item = cJSON_CreateString(password);
-    // cJSON_AddItemToObject(root, "password", item);
-    // char *out = cJSON_Print(root);
-    if (send(sock_fd, user, 1024, 0) < 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%s\t%s\t", 'L', name, password);
+    if (send(sock_fd, snd_msg, 1024, 0) < 0)
     {
         perror("send: 请求服务器失败");
         return 0;
     }
-    // free(out);
-    // printf("%s\n",massage);
+    // 进程锁，等待主线程响应
     My_Lock();
-    /*
-    printf("登录上锁前\n");
-    pthread_mutex_lock(&mutex);
-    printf("登录上锁后\n");
-    pthread_cond_wait(&cond ,&mutex);
-    printf("登录条件变量为真\n");
-    */
-    // cJSON_Delete(root);
-    // root = cJSON_Parse(massage);
-    // item = cJSON_GetObjectItem(root, "res");
-    // int res = item->valueint;
-    // if (res == 1)
-    // {
-    //     item = cJSON_GetObjectItem(root, "uid");
-    //     rtn = item->valueint;
-    //     printf("登录成功!请稍候..");
-    //     fflush(stdout);
-    // }
-    // else
-    // {
-    //     item = cJSON_GetObjectItem(root, "reason");
-    //     rtn = 0;
-    //     printf("登录失败: %s", item->valuestring);
-    //     getchar();
-    // }
-    // cJSON_Delete(root);
-    // /*printf("登录解锁前\n");
-    // pthread_mutex_unlock(&mutex);
-    // pthread_cond_signal(&cond);
-    // printf("登录解锁后\n");*/
-    // My_Unlock();
+    int res, uid;
+    int rtn;
+    sscanf(msg + 1, "\t%d\t%d\t", &res, &uid);
+    switch (res)
+    {
+    case 1:
+        printf("登录成功!请稍候..");
+        fflush(stdout);
+        rtn = 1;
+        break;
+    case -1:
+        printf("登录失败: 用户名不存在");
+        getchar();
+        rtn = 0;
+        break;
+    case -2:
+        printf("登录失败: 用户名或密码不正确");
+        getchar();
+        rtn = 0;
+    }
+
+    // 解锁
+    My_Unlock();
     return rtn;
 }

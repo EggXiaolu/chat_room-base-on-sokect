@@ -14,7 +14,7 @@
 extern int gl_uid;
 extern int sock_fd;
 extern int my_mutex;
-extern char massage[1024];
+extern char msg[1024];
 extern friends_t *FriendsList;
 extern group_t *curGroup;
 group_t *GroupList;
@@ -39,7 +39,7 @@ int Group_Srv_Create(const char *gname)
     }
     free(out);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res)
@@ -85,7 +85,7 @@ int Group_Srv_GetList()
     {
         // pthread_mutex_lock(&mutex);
         My_Lock();
-        root = cJSON_Parse(massage);
+        root = cJSON_Parse(msg);
         item = cJSON_GetObjectItem(root, "gid");
         if (item->valueint == 0)
         {
@@ -109,7 +109,7 @@ int Group_Srv_GetList()
     }
     // pthread_mutex_lock(&mutex);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res == 1)
@@ -147,7 +147,7 @@ int Group_Srv_AddMember(int gid, int uid)
     }
     free(out);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res)
@@ -309,7 +309,7 @@ void Group_Srv_RemoveMember(group_t *curGroup, char *name)
     }
     free(out);
     My_Lock();
-    root = cJSON_Parse(massage);
+    root = cJSON_Parse(msg);
     item = cJSON_GetObjectItem(root, "res");
     int res = item->valueint;
     if (res)
