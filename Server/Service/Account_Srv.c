@@ -29,23 +29,13 @@ int Account_Srv_SendIsOnline(int uid, int is_online)
             f_sock_fd = Chat_Srv_GetFriendSock(f->uid);
             if (f_sock_fd == -1)
                 return 0;
-            cJSON *root = cJSON_CreateObject();
-            cJSON *item = cJSON_CreateString("I");
-            cJSON_AddItemToObject(root, "type", item);
-            item = cJSON_CreateNumber(uid);
-            cJSON_AddItemToObject(root, "fuid", item);
-            item = cJSON_CreateBool(is_online);
-            cJSON_AddItemToObject(root, "is_online", item);
-            char *out = cJSON_Print(root);
-            cJSON_Delete(root);
-            // printf("上线:%s\n",out);
-            if (send(f_sock_fd, (void *)out, MSG_LEN, 0) <= 0)
+            char snd_msg[MSG_LEN];
+            sprintf(snd_msg, "%c\t%d\t%d\t", 'I', uid, is_online);
+            if (send(f_sock_fd, snd_msg, MSG_LEN, 0) <= 0)
             {
                 perror("send 客户端响应失败");
-                free(out);
                 return 0;
             }
-            free(out);
         }
     }
     List_Destroy(FriendsList, friends_t);
@@ -95,35 +85,22 @@ per:
     return rtn;
 }
 
-int Account_Srv_Out(int sock_fd, char *JSON)
+int Account_Srv_Out(int sock_fd, char *msg)
 {
     int uid;
     int rtn;
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "uid");
-    uid = item->valueint;
-    cJSON_Delete(root);
+    sscanf(msg + 2, "%d", &uid);
     rtn = Account_Srv_ChIsOnline(uid, 0, sock_fd);
     if (rtn != -1)
     {
-        Account_Srv_SendIsOnline(uid, 0);
-        // 向在线好友发送下线通知
+        Account_Srv_SendIsOnline(uid, 0); // 发送下线消息
     }
-    root = cJSON_CreateObject();
-    item = cJSON_CreateString("R");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateBool((rtn > 0));
-    cJSON_AddItemToObject(root, "res", item);
-    item = cJSON_CreateString("服务器异常 喵喵?");
-    cJSON_AddItemToObject(root, "reason", item);
-    char *out = cJSON_Print(root);
-    if (send(sock_fd, (void *)out, MSG_LEN, 0) <= 0)
+    char snd_msg[MSG_LEN];
+    sprintf(snd_msg, "%c\t%d\t", 'R', rtn);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
-        // perror("send ")
         rtn = 0;
     }
-    // cJSON_Delete(root);
-    // free(out);
     return rtn;
 }
 
@@ -133,7 +110,7 @@ int Account_Srv_SignIn(int sock_fd, char *msg)
     char snd_msg[MSG_LEN];
     int sex;
     int res;
-    sscanf(msg + 1, "\t%s\t%d\t%s\t", name, &sex, password);
+    sscanf(msg + 2, "%s\t%d\t%s\t", name, &sex, password);
     if (Account_Perst_IsUserName(name)) // 检查是否重复
     {
         res = -1;
@@ -163,7 +140,7 @@ int Account_Srv_Login(int sock_fd, char *msg)
     char name[64], password[64];
     int res;
     int uid;
-    sscanf(msg + 1, "\t%s\t%s\t", name, password);
+    sscanf(msg + 2, "%s\t%s\t", name, password);
     if ((uid = Account_Perst_IsUserName(name)) == 0)
     {
         res = -1;
@@ -173,7 +150,8 @@ int Account_Srv_Login(int sock_fd, char *msg)
         // 用户名存在
         if (Account_Perst_MatchUserAndPassword(uid, password))
         {
-            // Account_Srv_ChIsOnline(uid, 1, sock_fd); // 推送上线
+            Account_Srv_ChIsOnline(uid, 1, sock_fd); // 更改上线信息
+            Account_Srv_SendIsOnline(uid, 1);        // 推送上线信息
             res = 1;
         }
         // 密码错的

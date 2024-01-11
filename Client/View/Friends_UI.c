@@ -101,12 +101,12 @@ void Friends_UI_Apply()
         scanf("%c", &choice);
         if (choice == 'y')
         {
-            Friends_Srv_Apply(f->uid, gl_uid, 1);
+            Friends_Srv_Apply(gl_uid, f->uid, 1);
             f->state = 1;
         }
         else if (choice == 'n')
         {
-            Friends_Srv_Apply(f->uid, gl_uid, 0);
+            Friends_Srv_Apply( gl_uid,f->uid, 0);
             List_FreeNode(FriendsList, f, friends_t);
         }
     }

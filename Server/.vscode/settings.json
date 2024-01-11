@@ -11,6 +11,7 @@
         "in.h": "c",
         "string.h": "c",
         "stdio.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "format": "c"
     }
 }

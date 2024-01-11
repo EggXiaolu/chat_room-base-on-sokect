@@ -73,9 +73,9 @@ void Chat_UI_Private()
                 }
                 else
                 {
-                    printf("\t\e[31m%s\e[0m ", m->time);
+                    printf("\e[31m%s\e[0m ", m->time);
                     printf("%s\n", m->name);
-                    printf("\t  \e[1m%s\e[0m\n", m->msg);
+                    printf("  \e[1m%s\e[0m\n", m->msg);
                 }
             }
             else if (m->from_uid == gl_uid)
@@ -97,7 +97,7 @@ void Chat_UI_Private()
                "/r 返回上级| /f 发送文件| 回车 发送/刷新\n"
                "---------------------------------------\n");
         printf("消息/功能:");
-        sgets(msg, 1000);
+        sgets(msg, 1024);
         if (*msg == '\0')
             continue;
         else if (strcmp(msg, "/r") == 0)

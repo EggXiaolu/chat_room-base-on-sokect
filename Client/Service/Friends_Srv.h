@@ -19,6 +19,7 @@ typedef struct friends
     int is_online; // 是否在线
     int NewMsgNum; // 未读消息数
     int state;
+    int per;
     struct friends *next;
 } friends_t;
 

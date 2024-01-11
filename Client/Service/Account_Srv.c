@@ -17,13 +17,10 @@ extern char msg[1024];
 extern friends_t *FriendsList;
 extern int gl_uid;
 
-void Account_Srv_RecvIsOnline(char *JSON)
+void Account_Srv_RecvIsOnline(char *message)
 {
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "is_online");
-    int is_online = item->valueint;
-    item = cJSON_GetObjectItem(root, "fuid");
-    int fuid = item->valueint;
+    int is_online, fuid;
+    sscanf(message + 2, "%d\t%d\t", &fuid, &is_online);
     friends_t *f;
     List_ForEach(FriendsList, f)
     {
@@ -42,30 +39,20 @@ void Account_Srv_RecvIsOnline(char *JSON)
  */
 int Account_Srv_Out()
 {
-    int rtn;
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("O");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateNumber(gl_uid);
-    cJSON_AddItemToObject(root, "uid", item);
-    char *out = cJSON_Print(root);
-    if (send(sock_fd, (void *)out, 1024, 0) <= 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%d\t", 'O', gl_uid);
+    if (send(sock_fd, snd_msg, 1024, 0) <= 0)
     {
         perror("send 请求服务器失败");
-        rtn = 0;
+        return 0;
     }
     gl_uid = 0;
-    cJSON_Delete(root);
-    free(out);
-    // pthread_mutex_lock(&mutex);
-    // pthread_cond_wait(&cond ,&mutex);
     My_Lock();
-    root = cJSON_Parse(msg);
-    item = cJSON_GetObjectItem(root, "res");
-    if (item->valueint == 0)
+    int rtn;
+    sscanf(snd_msg + 2, "%d", &rtn);
+    if (rtn == 0)
     {
-        item = cJSON_GetObjectItem(root, "reason");
-        printf("注销失败: %s", item->valuestring);
+        printf("注销失败!");
         rtn = 0;
     }
     else
@@ -73,10 +60,8 @@ int Account_Srv_Out()
         printf("注销成功,按任意键继续..");
         rtn = 1;
     }
-    cJSON_Delete(root);
-    My_Unlock();
     getchar();
-    // pthread_mutex_unlock(&mutex);
+    My_Unlock();
     return rtn;
 }
 
@@ -91,11 +76,11 @@ int Account_Srv_SignIn(const char *name, int sex, const char *password)
     }
     My_Lock();
     int res, rtn;
-    sscanf(msg + 1, "\t%d\t", &res);
+    sscanf(msg + 2, "%d\t", &res);
     switch (res)
     {
     case 1:
-        printf("注册成功!按任意键继续...");
+        printf("注册成功! 按任意键继续...");
         getchar();
         rtn = 1;
         break;
@@ -125,14 +110,9 @@ int Account_Srv_Login(const char *name, const char *password)
     My_Lock();
     int res, uid;
     int rtn;
-    sscanf(msg + 1, "\t%d\t%d\t", &res, &uid);
+    sscanf(msg + 2, "%d\t%d\t", &res, &uid);
     switch (res)
     {
-    case 1:
-        printf("登录成功!请稍候..");
-        fflush(stdout);
-        rtn = 1;
-        break;
     case -1:
         printf("登录失败: 用户名不存在");
         getchar();
@@ -142,6 +122,12 @@ int Account_Srv_Login(const char *name, const char *password)
         printf("登录失败: 用户名或密码不正确");
         getchar();
         rtn = 0;
+        break;
+    default:
+        printf("登录成功!请稍候..");
+        fflush(stdout);
+        rtn = uid;
+        break;
     }
 
     // 解锁

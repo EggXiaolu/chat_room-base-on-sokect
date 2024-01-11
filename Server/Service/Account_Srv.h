@@ -12,14 +12,6 @@ typedef struct online
 	struct online *next;
 } online_t;
 
-// 用户基本信息
-typedef struct Account
-{
-	char type;
-	char name[24];
-	char password[24];
-};
-
 typedef struct send_msg
 {
 	char type;

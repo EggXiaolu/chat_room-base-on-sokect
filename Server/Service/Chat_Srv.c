@@ -60,39 +60,33 @@ int Chat_Srv_GetFriendSock(int fuid)
     }
     return to_sock;
 }
-int Chat_Srv_Private(int sock_fd, const char *JSON)
+int Chat_Srv_Private(int sock_fd, const char *msg)
 {
     int from_uid, to_uid, to_sock;
     user_date_t Srvdate = DateNow();
     user_time_t Srvtime = TimeNow();
     char Srvdatetime[25];
-    sprintf(Srvdatetime, "%04d-%02d-%02d %02d:%02d:%02d",
+    sprintf(Srvdatetime, "%04d-%02d-%02d|%02d:%02d:%02d",
             Srvdate.year, Srvdate.month, Srvdate.day,
             Srvtime.hour, Srvtime.minute, Srvtime.second);
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "from_uid");
-    from_uid = item->valueint;
-    item = cJSON_GetObjectItem(root, "to_uid");
-    to_uid = item->valueint;
-    item = cJSON_CreateString(Srvdatetime);
-    cJSON_AddItemToObject(root, "time", item);
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
+    sscanf(msg + 2, "%d\t%d\t", &from_uid, &to_uid);
+    char snd_msg[1024];
+    strcpy(snd_msg, msg);
+    strcat(snd_msg, Srvdatetime);
     to_sock = Chat_Srv_GetFriendSock(to_uid);
-    Chat_Perst_Private(from_uid, to_uid, out, (to_sock == -1));
+    Chat_Perst_Private(from_uid, to_uid, snd_msg, (to_sock == -1));
     if (to_sock == -1)
         return 2;
-    if (send(to_sock, (void *)out, MSG_LEN, 0) <= 0)
+    if (send(to_sock, (void *)snd_msg, MSG_LEN, 0) <= 0)
     {
         perror("send:");
-        free(out);
         return 0;
     }
-    free(out);
     return 1;
 }
-int Chat_Srv_Group(int sock_fd, const char *JSON)
+int Chat_Srv_Group(int sock_fd, const char *msg)
 {
+
     int from_uid, to_gid, to_sock;
     char offlist[100] = ",", str[4];
     group_member_t *GroupMember, *g;
@@ -100,41 +94,37 @@ int Chat_Srv_Group(int sock_fd, const char *JSON)
     user_date_t Srvdate = DateNow();
     user_time_t Srvtime = TimeNow();
     char Srvdatetime[25];
-    sprintf(Srvdatetime, "%04d-%02d-%02d %02d:%02d:%02d",
+    sprintf(Srvdatetime, "%04d-%02d-%02d|%02d:%02d:%02d",
             Srvdate.year, Srvdate.month, Srvdate.day,
             Srvtime.hour, Srvtime.minute, Srvtime.second);
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "from_uid");
-    from_uid = item->valueint;
-    item = cJSON_GetObjectItem(root, "to_gid");
-    to_gid = item->valueint;
-    item = cJSON_CreateString(Srvdatetime);
-    cJSON_AddItemToObject(root, "time", item);
-    item = cJSON_CreateString(Account_Perst_GetUserNameFromUid(from_uid));
-    cJSON_AddItemToObject(root, "uname", item);
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
+
+    sscanf(msg + 2, "%d\t%d\t", &from_uid, &to_gid);
+    char snd_msg[1024];
+    strcpy(snd_msg, msg);
+    strcat(snd_msg, Srvdatetime);
+    strcat(snd_msg, "\t");
+    strcat(snd_msg, Account_Perst_GetUserNameFromUid(from_uid));
     Group_Perst_GetGroupMember(GroupMember, to_gid);
+    printf("1213\n");
     List_ForEach(GroupMember, g)
     {
         if (g->user_info.uid == from_uid)
             continue;
         to_sock = Chat_Srv_GetFriendSock(g->user_info.uid);
+        printf("sock=%d\n", to_sock);
         if (to_sock == -1)
         {
             sprintf(str, "%d,", g->user_info.uid);
             strcat(offlist, str);
             continue;
         }
-        if (send(to_sock, (void *)out, MSG_LEN, 0) <= 0)
+        if (send(to_sock, snd_msg, MSG_LEN, 0) <= 0)
         {
             perror("send:");
-            free(out);
             return 0;
         }
     }
-    Chat_Perst_Group(from_uid, to_gid, out, offlist);
-    free(out);
+    Chat_Perst_Group(from_uid, to_gid, snd_msg, offlist);
     return 1;
 }
 

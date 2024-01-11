@@ -40,6 +40,7 @@ void *thread(void *arg)
             }
             recv_len += ret;
         }
+        printf("msg: %s\n", buf);
         //        printf("收到: sockfd = %d\n%s\n",client_fd,buf);
         switch (buf[0])
         {
@@ -61,10 +62,12 @@ void *thread(void *arg)
             Friends_Srv_Del(client_fd, buf);
         case 'G':
             // 获取好友列表
+            printf("get user list\n");
             Friends_Srv_GetList(client_fd, buf);
             break;
         case 'g':
             // 获取群列表
+            printf("get group list\n");
             Group_Srv_GetList(client_fd, buf);
             break;
         case 'P':

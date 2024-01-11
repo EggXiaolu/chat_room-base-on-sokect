@@ -46,7 +46,6 @@ void *thread(void *arg)
             }
             recv_len += ret;
         }
-        // printf("收到:%s\n",massage);
         switch (msg[0])
         {
         case 'A':
@@ -88,7 +87,7 @@ void *thread(void *arg)
             // 主线程处理
             break;
         case 'I':
-            // 好友上下线请求
+            // 好友上下线
             Account_Srv_RecvIsOnline(msg);
             break;
         case 'J':

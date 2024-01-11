@@ -22,27 +22,17 @@ group_t *GroupList;
 int Group_Srv_Create(const char *gname)
 {
     int rtn = 0;
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("c");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateString(gname);
-    cJSON_AddItemToObject(root, "gname", item);
-    item = cJSON_CreateNumber(gl_uid);
-    cJSON_AddItemToObject(root, "uid", item);
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
-    if (send(sock_fd, out, MSG_LEN, 0) <= 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%s\t%d\t", 'c', gname, gl_uid);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
-        free(out);
         perror("send");
         return 0;
     }
-    free(out);
     My_Lock();
-    root = cJSON_Parse(msg);
-    item = cJSON_GetObjectItem(root, "res");
-    int res = item->valueint;
-    if (res)
+    int res;
+    sscanf(msg + 2, "%d", &res);
+    if (res == 1)
     {
         printf("群创建成功!");
         getchar();
@@ -50,107 +40,74 @@ int Group_Srv_Create(const char *gname)
     }
     else
     {
-        item = cJSON_GetObjectItem(root, "reason");
-        printf("创建失败 :%s ", item->valuestring);
+        printf("创建失败 :群名已存在！");
         getchar();
         rtn = 0;
     }
-    cJSON_Delete(root);
     My_Unlock();
     return rtn;
 }
 int Group_Srv_GetList()
 {
     int rtn;
+    char snd_msg[1024];
     if (NULL != GroupList)
     {
         List_Destroy(GroupList, group_t);
     }
     List_Init(GroupList, group_t);
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("g");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateNumber(gl_uid);
-    cJSON_AddItemToObject(root, "uid", item);
-    char *out = cJSON_Print(root);
-    if (send(sock_fd, (void *)out, MSG_LEN, 0) < 0)
+    sprintf(snd_msg, "%c\t%d\t", 'g', gl_uid);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) < 0)
     {
         perror("send: 请求服务器失败");
         return 0;
     }
-    free(out);
-    cJSON_Delete(root);
     group_t *newNode = NULL;
     while (1)
     {
-        // pthread_mutex_lock(&mutex);
         My_Lock();
-        root = cJSON_Parse(msg);
-        item = cJSON_GetObjectItem(root, "gid");
-        if (item->valueint == 0)
+        newNode = (group_t *)malloc(sizeof(group_t));
+        sscanf(msg + 2, "%d\t%s\t%d\t%d\t",
+               &newNode->gid, newNode->name,
+               &newNode->owner, &newNode->num);
+        if (newNode->gid == 0)
         {
             My_Unlock();
-            // pthread_mutex_unlock(&mutex);
             break;
         }
-        newNode = (group_t *)malloc(sizeof(group_t));
-        newNode->gid = item->valueint;
-        item = cJSON_GetObjectItem(root, "name");
-        strcpy(newNode->name, item->valuestring);
-        item = cJSON_GetObjectItem(root, "owner");
-        newNode->owner = item->valueint;
-        item = cJSON_GetObjectItem(root, "num");
-        newNode->num = item->valueint;
-        cJSON_Delete(root);
         newNode->next = NULL;
         List_AddHead(GroupList, newNode);
         My_Unlock();
-        // pthread_mutex_unlock(&mutex);
     }
-    // pthread_mutex_lock(&mutex);
     My_Lock();
-    root = cJSON_Parse(msg);
-    item = cJSON_GetObjectItem(root, "res");
-    int res = item->valueint;
+    int res;
+    sscanf(msg + 2, "%d\t", &res);
     if (res == 1)
     {
         rtn = 1;
     }
     else
     {
-        item = cJSON_GetObjectItem(root, "reason");
-        printf("请求失败: %s", item->valuestring);
+        printf("请求失败");
         rtn = 0;
     }
-    cJSON_Delete(root);
     My_Unlock();
     // pthread_mutex_unlock(&mutex);
     return rtn;
 }
 int Group_Srv_AddMember(int gid, int uid)
 {
-
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("M");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateNumber(gid);
-    cJSON_AddItemToObject(root, "gid", item);
-    item = cJSON_CreateNumber(uid);
-    cJSON_AddItemToObject(root, "uid", item);
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
-    if (send(sock_fd, out, MSG_LEN, 0) <= 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%d\t%d\t", 'M', gid, uid);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
-        free(out);
         perror("send");
         return 0;
     }
-    free(out);
     My_Lock();
-    root = cJSON_Parse(msg);
-    item = cJSON_GetObjectItem(root, "res");
-    int res = item->valueint;
-    if (res)
+    int res;
+    sscanf(msg + 2, "%d\t", &res);
+    if (res == 1)
     {
         printf("邀请成功!");
         getchar();
@@ -160,23 +117,15 @@ int Group_Srv_AddMember(int gid, int uid)
         printf("邀请失败,该成员已在当前群聊中!");
         getchar();
     }
-    cJSON_Delete(root);
     My_Unlock();
     return 1;
 }
-void Group_Srv_Join(const char *massage)
+void Group_Srv_Join(const char *msg)
 {
-    group_t *newNode =
-        (group_t *)malloc(sizeof(group_t));
-    cJSON *root = cJSON_Parse(massage);
-    cJSON *item = cJSON_GetObjectItem(root, "gid");
-    newNode->gid = item->valueint;
-    item = cJSON_GetObjectItem(root, "name");
-    strcpy(newNode->name, item->valuestring);
-    item = cJSON_GetObjectItem(root, "owner");
-    newNode->owner = item->valueint;
-    item = cJSON_GetObjectItem(root, "num");
-    newNode->num = item->valueint;
+    group_t *newNode = (group_t *)malloc(sizeof(group_t));
+    sscanf(msg + 2, "%d\t%s\t%d\t%d\t",
+           &newNode->gid, newNode->name,
+           &newNode->owner, &newNode->num);
     newNode->NewMsgNum = 0;
     newNode->next = NULL;
     List_AddHead(GroupList, newNode);
@@ -193,20 +142,13 @@ void Group_Srv_Join(const char *massage)
     }
 }
 
-void Group_Srv_ShowMember(const char *massage)
+void Group_Srv_ShowMember(const char *msg)
 {
-    cJSON *root, *item;
     friends_t GroupMember;
-    root = cJSON_Parse(massage);
-    item = cJSON_GetObjectItem(root, "name");
-    strcpy(GroupMember.name, item->valuestring);
-    item = cJSON_GetObjectItem(root, "sex");
-    GroupMember.sex = item->valueint;
-    item = cJSON_GetObjectItem(root, "is_online");
-    GroupMember.is_online = item->valueint;
-    item = cJSON_GetObjectItem(root, "is_vip");
-    GroupMember.is_vip = item->valueint;
-    item = cJSON_GetObjectItem(root, "permission");
+    sscanf(msg + 2, "%d\t%s\t%d\t%d\t%d\t%d\t",
+           &GroupMember.uid, GroupMember.name,
+           &GroupMember.sex, &GroupMember.is_vip,
+           &GroupMember.is_online, &GroupMember.per);
     char *is_online[2] = {"●", "\e[32m●\e[0m"};
     char *is_vip[2] = {"", "\e[31m"};
     char *sex[2] = {"\e[35m♀\e[0m", "\e[36m♂\e[0m"};
@@ -215,72 +157,67 @@ void Group_Srv_ShowMember(const char *massage)
            is_online[GroupMember.is_online],
            is_vip[GroupMember.is_vip],
            GroupMember.name, sex[GroupMember.sex],
-           per[item->valueint]);
-    cJSON_Delete(root);
+           per[GroupMember.per]);
 }
 
 void Group_Srv_GetMember(int gid)
 {
-    cJSON *root = cJSON_CreateObject();
-    cJSON_AddStringToObject(root, "type", "m");
-    cJSON_AddNumberToObject(root, "gid", gid);
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
-    if (send(sock_fd, out, MSG_LEN, 0) <= 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%d\t", 'm', gid);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
         perror("send");
     }
-    free(out);
 }
 
 void Group_Srv_Quit(group_t *curGroup)
 {
     char choice[5];
-    cJSON *root = cJSON_CreateObject();
-    cJSON_AddStringToObject(root, "type", "Q");
-    cJSON_AddNumberToObject(root, "gid", curGroup->gid);
+    char snd_msg[1024];
+    int doing;
     if (curGroup->owner == gl_uid)
     {
         // 解散群
-        cJSON_AddStringToObject(root, "do", "解散");
+        doing = 0;
         printf("您是群主,确认解散群聊 %s ?[yes/no]", curGroup->name);
     }
     else
     {
-        cJSON_AddStringToObject(root, "do", "退群");
-        cJSON_AddNumberToObject(root, "uid", gl_uid);
+        doing = 1;
         printf("确认要退出群聊 %s ?[yes/no]", curGroup->name);
     }
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
+    sprintf(snd_msg, "%c\t%d\t%d\t%d\t", 'Q', curGroup->gid, doing, gl_uid);
     sgets(choice, 5);
     if (strcmp(choice, "yes") != 0)
     {
-        free(out);
         return;
     }
-    if (send(sock_fd, out, MSG_LEN, 0) <= 0)
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
         perror("send");
     }
-    free(out);
     List_FreeNode(GroupList, curGroup, group_t);
     printf("操作成功！");
     getchar();
 }
 
-void Group_Srv_Delete(const char *massage)
+void Group_Srv_Delete(const char *msg)
 {
-    cJSON *root = cJSON_Parse(massage);
-    cJSON *item = cJSON_GetObjectItem(root, "gid");
-    int gid = item->valueint;
-    cJSON_Delete(root);
+    int gid, res;
+    sscanf(msg + 2, "%d\t%d\t", &gid, &res);
     group_t *g;
     List_ForEach(GroupList, g)
     {
         if (g->gid == gid)
         {
-            printf("\n群主已将群聊 %s 解散!\n", g->name);
+            if (res == 0)
+            {
+                printf("\n群主已将群聊 %s 解散!\n", g->name);
+            }
+            else if (res == 1)
+            {
+                printf("\n群主已将您踢出 %s !\n", g->name);
+            }
             List_FreeNode(GroupList, g, group_t);
             curGroup = NULL;
             return;
@@ -290,41 +227,34 @@ void Group_Srv_Delete(const char *massage)
 
 void Group_Srv_RemoveMember(group_t *curGroup, char *name)
 {
-    cJSON *root = cJSON_CreateObject();
-    cJSON *item = cJSON_CreateString("d");
-    cJSON_AddItemToObject(root, "type", item);
-    item = cJSON_CreateNumber(curGroup->gid);
-    cJSON_AddItemToObject(root, "gid", item);
-    item = cJSON_CreateString(name);
-    cJSON_AddItemToObject(root, "name", item);
-    item = cJSON_CreateNumber(curGroup->owner);
-    cJSON_AddItemToObject(root, "owner", item);
-    char *out = cJSON_Print(root);
-    cJSON_Delete(root);
-    if (send(sock_fd, out, MSG_LEN, 0) <= 0)
+    char snd_msg[1024];
+    sprintf(snd_msg, "%c\t%d\t%s\t%d\t", 'd',
+            curGroup->gid, name,
+            curGroup->owner);
+    if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
-        free(out);
         perror("send");
         return;
     }
-    free(out);
     My_Lock();
-    root = cJSON_Parse(msg);
-    item = cJSON_GetObjectItem(root, "res");
-    int res = item->valueint;
-    if (res)
+    int res;
+    sscanf(msg + 2, "%d\t", &res);
+    switch (res)
     {
-        printf("删除成功!\n");
-        getchar();
+    case 1:
+        printf("成员删除成功\n");
+        break;
+    case -1:
+        printf("无法删除群主\n");
+        break;
+    case -2:
+        printf("你没有权限\n");
+        break;
+    case -3:
+        printf("该用户不存在\n");
+        break;
     }
-    else
-    {
-        item = cJSON_GetObjectItem(root, "reason");
-        printf("删除失败:");
-        printf("%s\n", item->valuestring);
-        getchar();
-    }
-    cJSON_Delete(root);
+    getchar();
     My_Unlock();
     return;
 }
