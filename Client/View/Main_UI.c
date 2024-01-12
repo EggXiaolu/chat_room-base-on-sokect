@@ -10,6 +10,7 @@
 #include "../Service/Chat_Srv.h"
 #include "../Service/Group_Srv.h"
 extern int gl_uid;
+char *login_name;
 void Main_UI_Hello()
 {
     int choice;
@@ -60,6 +61,7 @@ void Main_UI_Menu()
     do
     {
         system("clear");
+        printf("当前用户：%s\n", login_name);
         Friends_UI_ShowList();
         Group_UI_ShowList();
         Friends_UI_ShowApply();
