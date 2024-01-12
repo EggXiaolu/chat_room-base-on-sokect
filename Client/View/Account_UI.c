@@ -3,6 +3,8 @@
 #include "./Account_UI.h"
 #include "../Common/Common.h"
 #include "../Service/Account_Srv.h"
+
+extern char *login_name;
 int Account_UI_SignIn()
 {
     printf(
@@ -53,6 +55,7 @@ int Account_UI_Login()
     printf("请输入密码:");
     scanf("%s", password);
     ffflush();
+    strcpy(login_name, name);
     return Account_Srv_Login(name, password);
 }
 
