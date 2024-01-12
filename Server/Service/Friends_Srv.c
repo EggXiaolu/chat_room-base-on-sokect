@@ -86,7 +86,11 @@ int Friends_Srv_SendAdd(int uid, int fuid, char type)
     NewFriends->uid = uid;
     Friends_Perst_GetFriendInfo(NewFriends);
     f_sock_fd = Chat_Srv_GetFriendSock(fuid);
+<<<<<<< HEAD
     if (type != 'A')
+=======
+    if (*type != 'A')
+>>>>>>> 04658cf (Please enter the commit message for your changes. Lines starting)
     {
         NewFriends->state = 1;
     }

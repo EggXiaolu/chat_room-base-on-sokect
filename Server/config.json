@@ -1,8 +1,13 @@
 {
 	"server_port": 5555,
 	"db_port": 3305,
+<<<<<<< HEAD
 	"host": "127.17.0.2",
 	"user": "root", 
+=======
+	"host": "0.0.0.0",
+	"user": "root",
+>>>>>>> 04658cf (Please enter the commit message for your changes. Lines starting)
 	"pass": "123456",
 	"database": "chat_room" 
 }
