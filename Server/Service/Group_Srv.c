@@ -38,7 +38,9 @@ void Group_Srv_SendInfo(int gid, int uid)
 {
     group_t *GroupInfo = Group_Perst_GetInfo(gid);
     char snd_msg[MSG_LEN];
-    sprintf(snd_msg, "%c\t%d\t%s\t%d\t%d\t", 'J', GroupInfo->gid, GroupInfo->name, GroupInfo->owner, GroupInfo->num);
+    sprintf(snd_msg, "%c\t%d\t%s\t%d\t%d\t", 'J',
+            GroupInfo->gid, GroupInfo->name,
+            GroupInfo->owner, GroupInfo->num);
     int f_fd = Chat_Srv_GetFriendSock(uid);
     if (send(f_fd, snd_msg, MSG_LEN, 0) <= 0)
     {

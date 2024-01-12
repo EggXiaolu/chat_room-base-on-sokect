@@ -15,11 +15,9 @@
 #define LISTEN_NUM 12 // 连接请求队列长度
 #define MSG_LEN 1024
 online_t *OnlineList;
-static char buf[1024];
 void *thread(void *arg)
 {
     char buf[MSG_LEN];
-    cJSON *root, *item;
     int client_fd = (int)(long)arg;
     while (1)
     {
@@ -60,8 +58,9 @@ void *thread(void *arg)
         case 'D':
             // 删除好友
             Friends_Srv_Del(client_fd, buf);
+            break;
         case 'G':
-            // 获取好友列表
+            // 获取好友列表 
             printf("get user list\n");
             Friends_Srv_GetList(client_fd, buf);
             break;
@@ -156,7 +155,10 @@ void Connect(int port)
         perror("listen");
         exit(0);
     }
-    printf("服务器启动成功！\n");
+    printf("服务器启动成功！\n"
+           "port : %d\n",
+           port);
+
     while (1)
     {
         client_fd = accept(sock_fd, (struct sockaddr *)&client_addr, (socklen_t *)&len);

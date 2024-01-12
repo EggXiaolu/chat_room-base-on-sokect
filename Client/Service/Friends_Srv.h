@@ -30,9 +30,10 @@ int Friends_Srv_SendAdd(const char *fname);
 
 // 删除好友
 int Friends_Srv_SendDel(friends_t *f);
-
+// 添加好友通知
 int Friends_Srv_RecvAdd(const char *JSON);
-
+// 删除好友通知
+int Friends_Srv_RecvDel(const char *JSON);
 // 获取好友列表
 int Friends_Srv_GetList();
 

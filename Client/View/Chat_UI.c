@@ -100,18 +100,19 @@ void Chat_UI_Private()
         sgets(msg, 1024);
         if (*msg == '\0')
             continue;
-        else if (strcmp(msg, "/r") == 0)
+        switch (msg[1])
         {
+        case 'r':
             curFriend->NewMsgNum = 0;
             return;
-        }
-        else if (strcmp(msg, "/f") == 0)
-        {
+            break;
+        case 'f':
             if (curFriend->is_online == 0)
             {
                 printf("当前好友不在线,无法发送文件\n");
                 getchar();
                 continue;
+                break;
             }
             char filename[100];
             while (1)
@@ -129,15 +130,14 @@ void Chat_UI_Private()
                 getchar();
                 break;
             }
-        }
-        else if (strcmp(msg, "/m") == 0)
-        {
+            break;
+        case 'm':
             Chat_Srv_GetPrivateRec(curFriend->uid);
             getchar();
-        }
-        else
-        {
+            break;
+        default:
             Chat_Srv_SendPrivate(curFriend->uid, msg);
+            break;
         }
     } while (1);
 }

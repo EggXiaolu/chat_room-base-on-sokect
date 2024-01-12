@@ -60,6 +60,7 @@ int Chat_Srv_GetFriendSock(int fuid)
     }
     return to_sock;
 }
+
 int Chat_Srv_Private(int sock_fd, const char *msg)
 {
     int from_uid, to_uid, to_sock;
@@ -84,6 +85,7 @@ int Chat_Srv_Private(int sock_fd, const char *msg)
     }
     return 1;
 }
+
 int Chat_Srv_Group(int sock_fd, const char *msg)
 {
 

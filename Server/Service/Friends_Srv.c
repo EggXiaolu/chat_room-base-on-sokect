@@ -146,7 +146,20 @@ int Friends_Srv_Del(int sock_fd, const char *msg)
         perror("send");
         return 0;
     }
-
     Friends_Perst_Del(uid, fuid);
+    Friends_Srv_SendDel(uid, fuid);
+    return 1;
+}
+
+int Friends_Srv_SendDel(int uid, int fuid)
+{
+    int f_fd = Chat_Srv_GetFriendSock(fuid);
+    char snd_msg[MSG_LEN];
+    sprintf(snd_msg, "%c\t%d\t", 'd', uid);
+    if (send(f_fd, snd_msg, MSG_LEN, 0) <= 0)
+    {
+        perror("send");
+        return 0;
+    }
     return 1;
 }

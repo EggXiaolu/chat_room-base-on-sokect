@@ -147,6 +147,23 @@ int Friends_Srv_RecvAdd(const char *message)
     return 1;
 }
 
+int Friends_Srv_RecvDel(const char *msg)
+{
+    int uid;
+    sscanf(msg + 2, "%d", &uid);
+    friends_t *f;
+    List_ForEach(FriendsList, f)
+    {
+        if (f->uid == uid)
+        {
+            printf("\n%s 已将您删除!\n", f->name);
+            List_FreeNode(FriendsList, f, friends_t);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int Friends_Srv_Apply(int uid, int fuid, int is_agree)
 {
     char snd_msg[1024];

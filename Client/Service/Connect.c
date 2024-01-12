@@ -99,6 +99,8 @@ void *thread(void *arg)
             Group_Srv_ShowMember(msg);
             break;
         case 'd':
+            //处理被好友删除
+            Friends_Srv_RecvDel(msg);
             break;
         case 'D':
             // 删除群组
