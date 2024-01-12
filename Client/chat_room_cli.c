@@ -19,12 +19,6 @@ int main(int agc, char **argv)
         getchar();
         exit(0);
     }
-    // read(fd, buf, 1024);
-    // cJSON *root = cJSON_Parse(buf);
-    // cJSON *item = cJSON_GetObjectItem(root, "host");
-    // strcpy(host, item->valuestring);
-    // item = cJSON_GetObjectItem(root, "port");
-    // int port = item->valueint;
     if (agc <= 2)
     {
         printf("usage:\n"
