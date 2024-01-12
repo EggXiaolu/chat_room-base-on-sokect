@@ -130,7 +130,7 @@ int Friends_Srv_SendAdd(int uid, int fuid, char *type)
     friends_t *NewFriends = (friends_t *)malloc(sizeof(friends_t));
     NewFriends->uid = fuid;
     Friends_Perst_GetFriendInfo(NewFriends);
-    f_sock_fd = Chat_Srv_GetFriendSock(uid);
+    f_sock_fd = Chat_Srv_GetFriendSock(fuid);
     if (*type != 'A')
     {
         NewFriends->state = 1;
