@@ -128,7 +128,7 @@ int Friends_Srv_Apply(int sock_fd, const char *msg)
     return 1;
 }
 
-int Friends_Srsv_Del(int sock_fd, const char *msg)
+int Friends_Srv_Del(int sock_fd, const char *msg)
 {
     int uid;
     char fname[64];

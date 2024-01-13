@@ -33,13 +33,10 @@ int length(int n)
 int Chat_Srv_RecvFile(const char *msg)
 {
     int uid, fuid, size;
-    char buf[900], code_out[650];
     char filename[64];
     char fp[100] = "RecvFile/";
-    sscanf(msg + 2, "%d\t%d\t%s\t%d\t%s", &uid, &fuid, filename, &size, buf);
-    base64_decodestate state_in;
-    base64_init_decodestate(&state_in);
-    base64_decode_block(buf, strlen(buf), code_out, &state_in);
+    sscanf(msg + 2, "%d\t%d\t%s\t%d\t", &uid, &fuid, filename, &size);
+    char *buf = msg + 2 + length(uid) + 1 + length(fuid) + 1 + strlen(filename) + 1 + length(size) + 1;
     strcat(fp, filename);
     int fd = open(fp, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
     if (fd == -1)
@@ -47,7 +44,7 @@ int Chat_Srv_RecvFile(const char *msg)
         perror("open");
         return 0;
     }
-    if (write(fd, code_out, size) != size)
+    if (write(fd, buf, size) != size)
     {
         perror("write");
         if (size < 650 - 2)
@@ -70,12 +67,12 @@ int Chat_Srv_RecvFile(const char *msg)
 
 int Chat_Srv_SendFile(const char *filename, int fuid)
 {
-    char buf[50], code_out[900], code_end[5];
+    char buf[50];
     int fd, size;
     char fp[64];
     strcpy(fp, "./file/");
     strcat(fp, filename);
-    if ((fd = open(fp, O_RDONLY)) == -1)
+    if ((fd = open(fp, O_RDONLY | 0)) == -1)
     {
         printf("文件不存在或无读取权限");
         return 0;
@@ -84,19 +81,9 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
     {
         memset(buf, 0, sizeof(buf));
         size = read(fd, buf, sizeof(buf) - 2);
-        base64_encodestate state_in;
-        base64_init_encodestate(&state_in);
-        memset(code_out, 0, sizeof(code_out));
-        base64_encode_block(buf, size, code_out, &state_in);
-        if (state_in.step != step_A)
-        {
-            // 处理结尾
-            memset(code_end, 0, sizeof(code_end));
-            base64_encode_blockend(code_end, &state_in);
-            strcat(code_out, code_end);
-        }
         char snd_msg[1024];
-        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t%s\0", 'F', gl_uid, fuid, filename, size, code_out);
+        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t", 'F', gl_uid, fuid, filename, size);
+        memcpy(snd_msg + 2 + length(gl_uid) + 1 + length(fuid) + 1 + strlen(filename) + 1 + length(size) + 1, buf, size);
         int ret;
         if ((ret = send(sock_fd, snd_msg, 1024, 0)) <= 0)
         {
