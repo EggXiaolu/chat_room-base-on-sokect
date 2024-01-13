@@ -81,6 +81,7 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
     {
         memset(buf, 0, sizeof(buf));
         size = read(fd, buf, sizeof(buf) - 2);
+        base64_encodestate state_in;
         base64_init_encodestate(&state_in);
         memset(code_out, 0, sizeof(code_out));
         base64_encode_block(buf, size, code_out, &state_in);
