@@ -33,7 +33,7 @@ int length(int n)
 int Chat_Srv_RecvFile(const char *msg)
 {
     int uid, fuid, size;
-    char buf[900], code_out[900];
+    char buf[900], code_out[650];
     char filename[64];
     char fp[100] = "RecvFile/";
     sscanf(msg + 2, "%d\t%d\t%s\t%d\t%s", &uid, &fuid, filename, &size, buf);
@@ -50,7 +50,7 @@ int Chat_Srv_RecvFile(const char *msg)
     if (write(fd, code_out, size) != size)
     {
         perror("write");
-        if (size < 512)
+        if (size < 650 - 2)
         {
             friends_t *f;
             List_ForEach(FriendsList, f)
@@ -98,7 +98,7 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
         char snd_msg[1024];
         snprintf(snd_msg, sizeof(snd_msg), "%c\t%d\t%d\t%s\t%d\t%s", 'F', gl_uid, fuid, filename, size, code_out);
         int ret;
-        if ((ret = send(sock_fd, snd_msg, 2 + length(gl_uid) + 1 + length(fuid) + 1 + strlen(filename) + 1 + length(size) + 1, 0)) <= 0)
+        if ((ret = send(sock_fd, snd_msg, 1024, 0)) <= 0)
         {
             perror("send");
             return 0;
