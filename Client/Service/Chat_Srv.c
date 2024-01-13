@@ -67,7 +67,7 @@ int Chat_Srv_RecvFile(const char *msg)
 
 int Chat_Srv_SendFile(const char *filename, int fuid)
 {
-    char buf[512];
+    char buf[650];
     int fd, size;
     char fp[64];
     strcpy(fp, "./file/");
@@ -81,6 +81,16 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
     {
         memset(buf, 0, sizeof(buf));
         size = read(fd, buf, sizeof(buf) - 2);
+        base64_init_encodestate(&state_in);
+        memset(code_out, 0, sizeof(code_out));
+        base64_encode_block(buf, size, code_out, &state_in);
+        if (state_in.step != step_A)
+        {
+            // 如果不是base64编码
+            memset(code_end, 0, sizeof(code_end));
+            base64_encode_blockend(code_end, &state_in);
+            strcat(code_out, code_end);
+        }
         char snd_msg[1024];
         snprintf(snd_msg, sizeof(snd_msg), "%c\t%d\t%d\t%s\t%d\t", 'F', gl_uid, fuid, filename, size);
         memcpy(snd_msg + 2 * sizeof(int) + strlen(filename) + 2 * sizeof(int), buf, size);
