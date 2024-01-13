@@ -40,6 +40,7 @@ int Chat_Srv_RecvFile(const char *msg)
     base64_decodestate state_in;
     base64_init_decodestate(&state_in);
     base64_decode_block(buf, strlen(buf), code_out, &state_in);
+    printf("%s\n", code_out);
     strcat(fp, filename);
     int fd = open(fp, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
     if (fd == -1)
@@ -95,9 +96,9 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
             base64_encode_blockend(code_end, &state_in);
             strcat(code_out, code_end);
         }
-        printf("%s\n", code_out);
+        printf("%s\n", buf);
         char snd_msg[1024];
-        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t%s", 'F', gl_uid, fuid, filename, size, code_out);
+        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t%s\0", 'F', gl_uid, fuid, filename, size, code_out);
         int ret;
         if ((ret = send(sock_fd, snd_msg, 1024, 0)) <= 0)
         {
