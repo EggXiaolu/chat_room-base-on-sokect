@@ -90,13 +90,14 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
         base64_encode_block(buf, size, code_out, &state_in);
         if (state_in.step != step_A)
         {
-            // 如果不是base64编码
+            // 处理结尾
             memset(code_end, 0, sizeof(code_end));
             base64_encode_blockend(code_end, &state_in);
             strcat(code_out, code_end);
         }
+        printf("%s\n", code_out);
         char snd_msg[1024];
-        snprintf(snd_msg, sizeof(snd_msg), "%c\t%d\t%d\t%s\t%d\t%s", 'F', gl_uid, fuid, filename, size, code_out);
+        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t%s", 'F', gl_uid, fuid, filename, size, code_out);
         int ret;
         if ((ret = send(sock_fd, snd_msg, 1024, 0)) <= 0)
         {
