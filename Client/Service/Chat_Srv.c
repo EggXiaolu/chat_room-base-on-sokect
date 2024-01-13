@@ -67,7 +67,7 @@ int Chat_Srv_RecvFile(const char *msg)
 
 int Chat_Srv_SendFile(const char *filename, int fuid)
 {
-    char buf[650];
+    char buf[650], code_out[900], code_end[900];
     int fd, size;
     char fp[64];
     strcpy(fp, "./file/");
@@ -93,8 +93,7 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
             strcat(code_out, code_end);
         }
         char snd_msg[1024];
-        snprintf(snd_msg, sizeof(snd_msg), "%c\t%d\t%d\t%s\t%d\t", 'F', gl_uid, fuid, filename, size);
-        memcpy(snd_msg + 2 * sizeof(int) + strlen(filename) + 2 * sizeof(int), buf, size);
+        snprintf(snd_msg, sizeof(snd_msg), "%c\t%d\t%d\t%s\t%d\t%s", 'F', gl_uid, fuid, filename, size, code_out);
         int ret;
         if ((ret = send(sock_fd, snd_msg, 2 + length(gl_uid) + 1 + length(fuid) + 1 + strlen(filename) + 1 + length(size) + 1, 0)) <= 0)
         {
