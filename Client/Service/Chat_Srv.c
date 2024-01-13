@@ -33,10 +33,13 @@ int length(int n)
 int Chat_Srv_RecvFile(const char *msg)
 {
     int uid, fuid, size;
+    char buf[900], code_out[900];
     char filename[64];
     char fp[100] = "RecvFile/";
-    sscanf(msg + 2, "%d\t%d\t%s\t%d\t", &uid, &fuid, filename, &size);
-    char *buf = msg + 2 + length(uid) + 1 + length(fuid) + 1 + strlen(filename) + 1 + length(size) + 1;
+    sscanf(msg + 2, "%d\t%d\t%s\t%d\t%s", &uid, &fuid, filename, &size, buf);
+    base64_decodestate state_in;
+    base64_init_decodestate(&state_in);
+    base64_decode_block(buf, strlen(buf), code_out, &state_in);
     strcat(fp, filename);
     int fd = open(fp, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
     if (fd == -1)
@@ -44,7 +47,7 @@ int Chat_Srv_RecvFile(const char *msg)
         perror("open");
         return 0;
     }
-    if (write(fd, buf, size) != size)
+    if (write(fd, code_out, size) != size)
     {
         perror("write");
         if (size < 512)
