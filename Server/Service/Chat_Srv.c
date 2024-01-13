@@ -16,15 +16,10 @@
 
 extern online_t *OnlineList;
 
-void Chat_Srv_File(const char *JSON)
+void Chat_Srv_File(const char *msg)
 {
-    cJSON *root = cJSON_Parse(JSON);
-    cJSON *item = cJSON_GetObjectItem(root, "fuid");
-    int fuid = item->valueint;
-    item = cJSON_GetObjectItem(root, "size");
-    //    printf("size = %d\n" ,item -> valueint);
-    item = cJSON_GetObjectItem(root, "con");
-    //    printf("base64 :\n%s\n",item -> valuestring);
+    int uid, fuid;
+    sscanf(msg + 2, "%d\t%d\t", &uid, &fuid);
     int f_sock_fd = -1;
     online_t *o;
     List_ForEach(OnlineList, o)
@@ -37,13 +32,11 @@ void Chat_Srv_File(const char *JSON)
     }
     if (f_sock_fd == -1)
         return;
-    if (send(f_sock_fd, JSON, MSG_LEN, 0) <= 0)
+    if (send(f_sock_fd, msg, MSG_LEN, 0) <= 0)
     {
         perror("send");
-        cJSON_Delete(root);
         return;
     }
-    cJSON_Delete(root);
     return;
 }
 
