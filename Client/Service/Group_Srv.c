@@ -229,8 +229,7 @@ void Group_Srv_RemoveMember(group_t *curGroup, char *name)
 {
     char snd_msg[1024];
     sprintf(snd_msg, "%c\t%d\t%s\t%d\t", 'd',
-            curGroup->gid, name,
-            curGroup->owner);
+            curGroup->gid, name, curGroup->owner);
     if (send(sock_fd, snd_msg, MSG_LEN, 0) <= 0)
     {
         perror("send");

@@ -70,12 +70,12 @@ int Chat_Srv_RecvFile(const char *msg)
 
 int Chat_Srv_SendFile(const char *filename, int fuid)
 {
-    char buf[650], code_out[900], code_end[5];
+    char buf[50], code_out[900], code_end[5];
     int fd, size;
     char fp[64];
     strcpy(fp, "./file/");
     strcat(fp, filename);
-    if ((fd = open(fp, O_RDONLY | 0)) == -1)
+    if ((fd = open(fp, O_RDONLY)) == -1)
     {
         printf("文件不存在或无读取权限");
         return 0;
@@ -96,7 +96,7 @@ int Chat_Srv_SendFile(const char *filename, int fuid)
             strcat(code_out, code_end);
         }
         char snd_msg[1024];
-        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t%s", 'F', gl_uid, fuid, filename, size, code_out);
+        sprintf(snd_msg, "%c\t%d\t%d\t%s\t%d\t%s\0", 'F', gl_uid, fuid, filename, size, code_out);
         int ret;
         if ((ret = send(sock_fd, snd_msg, 1024, 0)) <= 0)
         {
@@ -120,7 +120,9 @@ void Chat_Srv_RecvPrivate(const char *msg)
 {
     int uid;
     private_msg_t *NewMsg = (private_msg_t *)malloc(sizeof(private_msg_t));
-    sscanf(msg + 2, "%d\t%d\t%s\t%s", &NewMsg->from_uid, &uid, NewMsg->msg, NewMsg->time);
+    sscanf(msg + 2, "%d\t%d\t%s\t%s",
+           &NewMsg->from_uid, &uid,
+           NewMsg->msg, NewMsg->time);
     friends_t *f;
     List_ForEach(FriendsList, f)
     {
@@ -139,7 +141,9 @@ void Chat_Srv_RecvPrivate(const char *msg)
 void Chat_Srv_RecvGroup(const char *msg)
 {
     group_msg_t *NewMsg = (group_msg_t *)malloc(sizeof(group_msg_t));
-    sscanf(msg + 2, "%d\t%d\t%s\t%s\t%s", &NewMsg->from_uid, &NewMsg->gid, NewMsg->msg, NewMsg->time, NewMsg->uname);
+    sscanf(msg + 2, "%d\t%d\t%s\t%s\t%s",
+           &NewMsg->from_uid, &NewMsg->gid,
+           NewMsg->msg, NewMsg->time, NewMsg->uname);
     group_t *g;
     List_ForEach(GroupList, g)
     {

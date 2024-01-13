@@ -12,6 +12,7 @@
         "string.h": "c",
         "stdio.h": "c",
         "types.h": "c",
-        "format": "c"
+        "format": "c",
+        "group_srv.h": "c"
     }
 }
